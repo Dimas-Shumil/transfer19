@@ -60,6 +60,98 @@
     button.addEventListener("click", () => updateAndScroll(button.dataset.route || ""));
   });
 
+  // Форматы поездок: плавный crossfade между двумя слоями изображения.
+  const tripSection = document.querySelector("[data-trip-formats]");
+  if (tripSection) {
+    const options = [...tripSection.querySelectorAll("[data-trip-option]")];
+    const photo = tripSection.querySelector("[data-trip-photo]");
+    const photoNext = tripSection.querySelector("[data-trip-photo-next]");
+    const photoLabel = tripSection.querySelector("[data-trip-photo-label]");
+    const photoTitle = tripSection.querySelector("[data-trip-photo-title]");
+    const photoDescription = tripSection.querySelector("[data-trip-photo-description]");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const fadeDuration = 850; // Соответствует transition opacity в home.scss.
+    let selectedOption = options.find((option) => option.closest(".trip-format")?.classList.contains("is-active")) || options[0];
+    let displayedSrc = photo?.getAttribute("src") || "";
+    let isSwitching = false;
+
+    function updateText(option) {
+      photoLabel.textContent = option.dataset.photoLabel || "";
+      photoTitle.textContent = option.dataset.photoTitle || "";
+      photoDescription.textContent = option.dataset.photoDescription || "";
+    }
+
+    function crossfadeToSelection() {
+      if (isSwitching || !photo || !photoNext || !selectedOption) return;
+      const option = selectedOption;
+      const nextSrc = option.dataset.photoSrc;
+      if (!nextSrc || nextSrc === displayedSrc) return;
+      isSwitching = true;
+
+      // Сначала загружаем новую фотографию, чтобы исключить белый кадр.
+      const preload = new Image();
+      preload.onload = () => {
+        if (option !== selectedOption) {
+          isSwitching = false;
+          crossfadeToSelection();
+          return;
+        }
+        photoNext.classList.remove("is-visible");
+        photoNext.src = nextSrc;
+        photoNext.alt = option.dataset.photoAlt || "";
+        if (reduceMotion.matches) {
+          photo.src = nextSrc;
+          photo.alt = photoNext.alt;
+          displayedSrc = nextSrc;
+          photoNext.alt = "";
+          isSwitching = false;
+          if (selectedOption !== option) crossfadeToSelection();
+          return;
+        }
+
+        // Два кадра позволяют старому снимку плавно уйти под новым.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          photoNext.classList.add("is-visible");
+          window.setTimeout(() => {
+            photo.src = nextSrc;
+            photo.alt = photoNext.alt;
+            displayedSrc = nextSrc;
+            photoNext.classList.remove("is-visible");
+            photoNext.alt = "";
+            isSwitching = false;
+            if (selectedOption !== option) crossfadeToSelection();
+          }, fadeDuration);
+        }));
+      };
+      preload.onerror = () => {
+        isSwitching = false;
+        // При проблеме с изображением не показываем сломанный кадр.
+      };
+      preload.src = nextSrc;
+    }
+
+    function selectTrip(option) {
+      if (!option || option === selectedOption) return;
+      selectedOption = option;
+      options.forEach((entry) => {
+        const active = entry === option;
+        entry.closest(".trip-format")?.classList.toggle("is-active", active);
+        entry.setAttribute("aria-pressed", String(active));
+      });
+      updateText(option);
+      crossfadeToSelection();
+    }
+
+    options.forEach((option) => {
+      option.addEventListener("click", () => selectTrip(option));
+      option.addEventListener("mouseenter", () => selectTrip(option));
+    });
+    tripSection.querySelector("[data-trip-booking]")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      updateAndScroll(selectedOption?.dataset.destination || "");
+    });
+  }
+
   dialog.querySelector("[data-dialog-close]")?.addEventListener("click", () => dialog.close());
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();

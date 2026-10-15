@@ -2,7 +2,7 @@
 
 // Единый загрузчик HTML-компонентов.
 // Разметка: /components/header.html и /components/footer.html
-// Стили: site/sass/header.fixed.scss и site/sass/footer.scss
+// Стили: site/sass/_header.scss и _footer.scss (сборка через home.scss, @use)
 (() => {
   const componentsDir = new URL("../../components/", document.currentScript.src);
   const templates = new Map();

@@ -1,0 +1,155 @@
+// МАРШРУТ — общие переменные, нормализация и сетка проекта.
+// All design tokens are SCSS variables (not :root custom properties).
+$paper: #f7f7f3;
+$paper-deep: #edeee9;
+$ink: #152433;
+$ink-muted: #6c7479;
+$olive: #788047;
+$olive-dark: #606b39;
+$gold: #b6a879;
+$line: #e5e6df;
+$white: #fff;
+$container: 1720px;
+$radius: 16px;
+$shadow: 0 22px 45px rgba(27, 40, 47, 0.09);
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+body {
+  margin: 0;
+  background: $paper;
+  color: $ink;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+body.is-menu-open {
+  overflow: hidden;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+img,
+svg {
+  display: block;
+}
+img {
+  max-width: 100%;
+}
+::selection {
+  background: rgba($olive, 0.28);
+  color: $ink;
+}
+:focus-visible {
+  outline: 3px solid $olive;
+  outline-offset: 4px;
+}
+.container {
+  width: min(calc(100% - 160px), $container);
+  margin-inline: auto;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1,
+h2,
+h3 {
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+.eyebrow {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  letter-spacing: 0.23em;
+  font-weight: 800;
+  color: $ink;
+  text-transform: uppercase;
+}
+.eyebrow__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $olive;
+  flex: none;
+}
+.eyebrow--light {
+  color: rgba($white, 0.82);
+}
+.eyebrow--light .eyebrow__dot {
+  background: $gold;
+}
+
+
+@media (max-width: 1440px) {
+  .container {
+      width: calc(100% - 130px);
+    }
+}
+
+@media (max-width: 1180px) {
+  .container {
+      width: calc(100% - 90px);
+    }
+}
+
+@media (max-width: 900px) {
+  .container {
+      width: calc(100% - 64px);
+    }
+}
+
+@media (max-width: 600px) {
+  .container {
+      width: calc(100% - 40px);
+    }
+  html {
+      scroll-padding-top: 78px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+      scroll-behavior: auto;
+    }
+  *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+}
+

@@ -12,7 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="/site/img/favicon.svg" />
     <link
       rel="preload"
-      href="/site/img/hero-scene.webp"
+      href="/site/img/hero-full.webp"
       as="image"
       type="image/webp"
     />
@@ -22,7 +22,6 @@
   </head>
 
   <body class="page-home">
-
     <site-header></site-header>
     <main>
       <section class="hero" id="home" aria-labelledby="hero-heading">
@@ -30,9 +29,7 @@
         <div class="hero__shade" aria-hidden="true"></div>
         <div class="container hero__container">
           <div class="hero__content">
-            <p class="eyebrow hero__eyebrow">
-            ХАКАСИЯ — БЛИЖЕ, ЧЕМ КАЖЕТСЯ
-            </p>
+            <p class="eyebrow hero__eyebrow">ХАКАСИЯ — БЛИЖЕ, ЧЕМ КАЖЕТСЯ</p>
             <h1 id="hero-heading">
               Комфорт —<br /><span>часть маршрута.</span>
             </h1>
@@ -41,17 +38,20 @@
               <li>
                 <svg class="icon" aria-hidden="true">
                   <use href="/site/img/icons.svg#leaf"></use>
-                </svg><span>Комфортные<br />минивэны</span>
+                </svg>
+                <span>Комфортные<br />минивэны</span>
               </li>
               <li>
                 <svg class="icon" aria-hidden="true">
-                  <use href="/site/img/icons.svg#users"></use></svg>
-                  <span>Индивидуальные<br />и групповые поездки</span>
+                  <use href="/site/img/icons.svg#users"></use>
+                </svg>
+                <span>Индивидуальные<br />и групповые поездки</span>
               </li>
               <li>
                 <svg class="icon" aria-hidden="true">
-                  <use href="/site/img/icons.svg#shield"></use></svg>
-                  <span>Внимание к деталям<br />каждой поездки</span>
+                  <use href="/site/img/icons.svg#shield"></use>
+                </svg>
+                <span>Внимание к деталям<br />каждой поездки</span>
               </li>
             </ul>
           </div>
@@ -167,11 +167,11 @@
               /><span class="car-card__tag">МИНИВЭН</span
               ><button
                 type="button"
-                class="car-card__select"
+                class="car-card__select circle-icon"
                 data-select-car="Honda Stepwgn (белый)"
                 aria-label="Выбрать белый Honda Stepwgn"
               >
-                +
+                <span class="circle-icon__glyph" aria-hidden="true">+</span>
               </button>
             </div>
             <div class="car-card__caption">
@@ -188,11 +188,11 @@
               /><span class="car-card__tag">МИНИВЭН</span
               ><button
                 type="button"
-                class="car-card__select"
+                class="car-card__select circle-icon"
                 data-select-car="Honda Stepwgn (тёмный)"
                 aria-label="Выбрать тёмный Honda Stepwgn"
               >
-                +
+                <span class="circle-icon__glyph" aria-hidden="true">+</span>
               </button>
             </div>
             <div class="car-card__caption">
@@ -209,11 +209,11 @@
               /><span class="car-card__tag">МИНИВЭН</span
               ><button
                 type="button"
-                class="car-card__select"
+                class="car-card__select circle-icon"
                 data-select-car="Toyota Voxy"
                 aria-label="Выбрать Toyota Voxy"
               >
-                +
+                <span class="circle-icon__glyph" aria-hidden="true">+</span>
               </button>
             </div>
             <div class="car-card__caption">
@@ -227,7 +227,7 @@
       <section class="explore" id="services" aria-label="Комфорт и направления">
         <div class="explore__comfort" data-reveal>
           <img
-            src="/site/img/interior.webp"
+            src="/site/img/salon.png"
             alt="Пример просторного салона пассажирского минивэна"
             loading="lazy"
           />
@@ -243,9 +243,9 @@
             </p>
             <a
               href="#booking"
-              class="round-link"
+              class="round-link circle-icon"
               aria-label="Заказать комфортную поездку"
-              >+</a
+              ><span class="circle-icon__glyph" aria-hidden="true">+</span></a
             >
           </div>
         </div>
@@ -295,6 +295,288 @@
             </button>
           </div>
         </div>
+      </section>
+
+      <!-- B2B: сотрудничество с туроператорами, отелями и компаниями -->
+      <section
+        class="partners container"
+        id="partners"
+        aria-labelledby="partners-title"
+      >
+        <div class="partners__main">
+          <div class="partners__intro" data-reveal>
+            <p class="eyebrow">
+              <span class="eyebrow__dot"></span> ВМЕСТЕ ОТКРЫВАЕМ ХАКАСИЮ
+            </p>
+            <h2 id="partners-title">Для бизнеса<br />и партнёров</h2>
+            <p>
+              Надёжные трансферы для ваших гостей, клиентов и команд. Помогаем
+              туристическим компаниям, отелям и организаторам мероприятий.
+            </p>
+          </div>
+          <div class="partners__grid">
+            <article class="partner-card" data-reveal>
+              <div class="partner-card__content">
+                <span class="partner-card__icon" aria-hidden="true">✧</span>
+                <h3>Экскурсии<br />и туры</h3>
+                <p>
+                  Трансферы для туристических групп и индивидуальных
+                  путешествий.
+                </p>
+                <a href="#booking" aria-label="Обсудить транспорт для экскурсий"
+                  >Обсудить поездки <span aria-hidden="true">+</span></a
+                >
+              </div>
+              <img
+                src="/site/img/tours.png"
+                alt="Живописный маршрут по Хакасии"
+                loading="lazy"
+              />
+            </article>
+            <article class="partner-card" data-reveal>
+              <div class="partner-card__content">
+                <span class="partner-card__icon" aria-hidden="true">⌂</span>
+                <h3>Отели и базы<br />отдыха</h3>
+                <p>
+                  Встреча гостей, комфортные трансферы и поездки по региону.
+                </p>
+                <a href="#booking" aria-label="Обсудить трансферы для отеля"
+                  >Обсудить поездки <span aria-hidden="true">+</span></a
+                >
+              </div>
+              <img
+                src="/site/img/bases.png"
+                alt="Горный пейзаж Хакасии"
+                loading="lazy"
+              />
+            </article>
+            <article class="partner-card" data-reveal>
+              <div class="partner-card__content">
+                <span class="partner-card__icon" aria-hidden="true">▣</span>
+                <h3>Корпоративные<br />поездки</h3>
+                <p>
+                  Трансферы сотрудников, деловых гостей и партнёров компании.
+                </p>
+                <a href="#booking" aria-label="Обсудить корпоративный трансфер"
+                  >Обсудить поездки <span aria-hidden="true">+</span></a
+                >
+              </div>
+              <img
+                src="/site/img/corp.png"
+                alt="Комфортный салон минивэна"
+                loading="lazy"
+              />
+            </article>
+            <article class="partner-card" data-reveal>
+              <div class="partner-card__content">
+                <span class="partner-card__icon" aria-hidden="true">✦</span>
+                <h3>Мероприятия<br />и форумы</h3>
+                <p>Транспорт для гостей, участников и организаторов событий.</p>
+                <a
+                  href="#booking"
+                  aria-label="Обсудить трансфер для мероприятия"
+                  >Обсудить поездки <span aria-hidden="true">+</span></a
+                >
+              </div>
+              <img
+                src="/site/img/forums.png"
+                alt="Городской пейзаж для деловых поездок"
+                loading="lazy"
+              />
+            </article>
+          </div>
+        </div>
+        <aside
+          class="partners__feature"
+          aria-labelledby="partners-feature-title"
+          data-reveal
+        >
+          <div class="partners__feature-copy">
+            <p class="eyebrow">
+              <span class="eyebrow__dot"></span> НАДЁЖНОЕ ПАРТНЁРСТВО
+            </p>
+            <h3 id="partners-feature-title">
+              Транспорт для ваших гостей и клиентов
+            </h3>
+            <p>
+              Подберём подходящий автомобиль, обсудим маршрут, время и формат
+              сотрудничества. Все детали — под задачи вашей организации.
+            </p>
+            <a class="partners__button" href="#booking"
+              >Обсудить сотрудничество</a
+            >
+            <a class="partners__outline" href="#autopark"
+              >Посмотреть автопарк</a
+            >
+          </div>
+          <div
+            class="partners__feature-photo"
+            role="img"
+            aria-label="Белый минивэн на фоне гор Хакасии"
+          ></div>
+          <div class="partners__feature-bottom">
+            <span>Индивидуальный подход</span><span>Комфортные минивэны</span
+            ><span>Маршруты по Хакасии</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- Форматы поездок: семантический список услуг и общее фото-превью. -->
+      <section
+        class="trip-formats container"
+        id="trip-formats"
+        aria-labelledby="trip-formats-title"
+      >
+        <div class="trip-formats__header" data-reveal>
+          <div>
+            <p class="eyebrow">
+              <span class="eyebrow__dot"></span> ФОРМАТЫ ПОЕЗДОК
+            </p>
+            <h2 id="trip-formats-title">Поездка под<br />ваши планы.</h2>
+          </div>
+          <p>
+            Межгород, личные дела или путешествие с близкими — выберите
+            подходящий формат, а маршрут мы согласуем с вами.
+          </p>
+        </div>
+
+        <div class="trip-formats__layout" data-trip-formats>
+          <ul class="trip-formats__options" aria-label="Форматы поездок">
+            <li class="trip-format is-active">
+              <span class="trip-format__num" aria-hidden="true">01</span>
+              <div class="trip-format__info">
+                <h3 id="trip-format-title-01">Абакан — Красноярск</h3>
+                <p>Междугородние поездки без пересадок</p>
+              </div>
+              <button
+                class="trip-format__trigger"
+                type="button"
+                data-trip-option
+                data-photo-src="/site/img/hero-full.webp"
+                data-photo-alt="Белый Honda Stepwgn на горной дороге"
+                data-photo-label="01 / МЕЖГОРОД"
+                data-photo-title="Абакан — Красноярск"
+                data-photo-description="Прямой маршрут без пересадок."
+                data-destination="Красноярск"
+                aria-labelledby="trip-format-title-01"
+                aria-pressed="true"
+              >
+                <span class="circle-icon" aria-hidden="true">
+                  <span class="circle-icon__glyph">+</span>
+                </span>
+              </button>
+            </li>
+            <li class="trip-format">
+              <span class="trip-format__num" aria-hidden="true">02</span>
+              <div class="trip-format__info">
+                <h3 id="trip-format-title-02">Автомобиль с водителем</h3>
+                <p>Встречи, дела и поездки по вашему графику</p>
+              </div>
+              <button
+                class="trip-format__trigger"
+                type="button"
+                data-trip-option
+                data-photo-src="/site/img/stepwgn-dark.png"
+                data-photo-alt="Чёрный минивэн Honda Stepwgn на фоне гор"
+                data-photo-label="02 / ИНДИВИДУАЛЬНО"
+                data-photo-title="Автомобиль с водителем"
+                data-photo-description="По вашим делам и индивидуальным маршрутам."
+                data-destination=""
+                aria-labelledby="trip-format-title-02"
+                aria-pressed="false"
+              >
+                <span class="circle-icon" aria-hidden="true">
+                  <span class="circle-icon__glyph">+</span>
+                </span>
+              </button>
+            </li>
+            <li class="trip-format">
+              <span class="trip-format__num" aria-hidden="true">03</span>
+              <div class="trip-format__info">
+                <h3 id="trip-format-title-03">Экскурсии по Хакасии</h3>
+                <p>Красивые маршруты и поездки на природу</p>
+              </div>
+              <button
+                class="trip-format__trigger"
+                type="button"
+                data-trip-option
+                data-photo-src="/site/img/tours.png"
+                data-photo-alt="Горный пейзаж Хакасии и река среди скал"
+                data-photo-label="03 / ПУТЕШЕСТВИЯ"
+                data-photo-title="Экскурсии по Хакасии"
+                data-photo-description="К природным достопримечательностям и местам отдыха."
+                data-destination=""
+                aria-labelledby="trip-format-title-03"
+                aria-pressed="false"
+              >
+                <span class="circle-icon" aria-hidden="true">
+                  <span class="circle-icon__glyph">+</span>
+                </span>
+              </button>
+            </li>
+            <li class="trip-format">
+              <span class="trip-format__num" aria-hidden="true">04</span>
+              <div class="trip-format__info">
+                <h3 id="trip-format-title-04">Групповые поездки</h3>
+                <p>Для семьи, друзей и небольших компаний</p>
+              </div>
+              <button
+                class="trip-format__trigger"
+                type="button"
+                data-trip-option
+                data-photo-src="/site/img/voxy-white.png"
+                data-photo-alt="Белый минивэн Toyota Voxy на горной дороге"
+                data-photo-label="04 / ДЛЯ КОМПАНИИ"
+                data-photo-title="Групповые поездки"
+                data-photo-description="Вместе с семьёй, друзьями или коллегами."
+                data-destination=""
+                aria-labelledby="trip-format-title-04"
+                aria-pressed="false"
+              >
+                <span class="circle-icon" aria-hidden="true">
+                  <span class="circle-icon__glyph">+</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+
+          <div class="trip-formats__feature" data-reveal>
+            <div class="trip-formats__photo">
+              <img
+                src="/site/img/hero-full.webp"
+                alt="Белый Honda Stepwgn на горной дороге"
+                loading="lazy"
+                class="is-visible"
+                data-trip-photo
+              />
+              <img
+                src="/site/img/hero-full.webp"
+                alt=""
+                loading="lazy"
+                aria-hidden="true"
+                data-trip-photo-next
+              />
+              <div class="trip-formats__photo-shade" aria-hidden="true"></div>
+              <span class="trip-formats__photo-label" data-trip-photo-label>
+                01 / МЕЖГОРОД
+              </span>
+              <span class="trip-formats__photo-sign" aria-hidden="true">МАРШРУТ</span>
+            </div>
+            <div class="trip-formats__feature-foot">
+              <div class="trip-formats__feature-text" aria-live="polite" aria-atomic="true">
+                <h3 data-trip-photo-title>Абакан — Красноярск</h3>
+                <p data-trip-photo-description>Прямой маршрут без пересадок.</p>
+              </div>
+              <a href="#booking" class="trip-formats__book" data-trip-booking>
+                Обсудить поездку <span aria-hidden="true">+</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <p class="trip-formats__note">
+          Маршрут, доступность автомобиля и стоимость согласовываются
+          индивидуально.
+        </p>
       </section>
 
       <section class="values" id="about" aria-label="Наш подход к поездкам">
@@ -367,11 +649,11 @@
     >
       <button
         type="button"
-        class="lead-dialog__close"
+        class="lead-dialog__close circle-icon circle-icon--close"
         data-dialog-close
         aria-label="Закрыть окно"
       >
-        ×
+        <span class="circle-icon__glyph" aria-hidden="true">+</span>
       </button>
       <p class="eyebrow">
         <span class="eyebrow__dot"></span> ПРЕДВАРИТЕЛЬНЫЙ ЗАПРОС
