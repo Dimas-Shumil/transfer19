@@ -1,0 +1,23 @@
+{
+  "name": "СВОИ ГРУЗЫ — управление",
+  "short_name": "СВОИ ГРУЗЫ",
+  "start_url": "/control/app.html#/dashboard",
+  "display": "standalone",
+  "background_color": "#101619",
+  "theme_color": "#101619",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/site/img/push-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/site/img/push-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

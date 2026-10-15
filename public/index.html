@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f7f3" />
+    <meta
+      name="description"
+      content="МАРШРУТ — трансферы и поездки с водителем по Хакасии. Выберите направление и автомобиль и оставьте предварительный запрос на поездку."
+    />
+    <title>МАРШРУТ — комфорт в каждой поездке по Хакасии</title>
+    <link rel="icon" type="image/svg+xml" href="/site/img/favicon.svg" />
+    <link
+      rel="preload"
+      href="/site/img/hero-scene.webp"
+      as="image"
+      type="image/webp"
+    />
+    <link rel="stylesheet" href="/site/css/home.min.css" />
+    <script src="/site/scripts/components.js" defer></script>
+    <script src="/site/scripts/home.js" defer></script>
+  </head>
+
+  <body class="page-home">
+
+    <site-header></site-header>
+    <main>
+      <section class="hero" id="home" aria-labelledby="hero-heading">
+        <div class="hero__scene" aria-hidden="true"></div>
+        <div class="hero__shade" aria-hidden="true"></div>
+        <div class="container hero__container">
+          <div class="hero__content">
+            <p class="eyebrow hero__eyebrow">
+            ХАКАСИЯ — БЛИЖЕ, ЧЕМ КАЖЕТСЯ
+            </p>
+            <h1 id="hero-heading">
+              Комфорт —<br /><span>часть маршрута.</span>
+            </h1>
+            <p class="hero__lead">Трансферы и поездки с водителем по Хакасии</p>
+            <ul class="hero__perks" aria-label="Преимущества поездок">
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/site/img/icons.svg#leaf"></use>
+                </svg><span>Комфортные<br />минивэны</span>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/site/img/icons.svg#users"></use></svg>
+                  <span>Индивидуальные<br />и групповые поездки</span>
+              </li>
+              <li>
+                <svg class="icon" aria-hidden="true">
+                  <use href="/site/img/icons.svg#shield"></use></svg>
+                  <span>Внимание к деталям<br />каждой поездки</span>
+              </li>
+            </ul>
+          </div>
+          <div class="hero__postcard" aria-hidden="true">
+            <strong>Хакасия</strong
+            ><span>БОЛЬШИЕ ВОЗМОЖНОСТИ<br />ДЛЯ ПУТЕШЕСТВИЙ</span>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="booking container"
+        id="booking"
+        aria-label="Предварительный запрос на трансфер"
+      >
+        <form class="booking__form" data-booking-form>
+          <label class="booking__field">
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#pin"></use>
+            </svg>
+            <span class="booking__field-content"
+              ><span>Откуда</span
+              ><select name="from" required aria-label="Откуда отправляемся">
+                <option value="Абакан">Абакан</option>
+                <option value="Аэропорт Абакана">Аэропорт Абакана</option>
+                <option value="Саяногорск">Саяногорск</option>
+                <option value="Черногорск">Черногорск</option>
+                <option value="Шира">Шира</option>
+                <option value="Красноярск">Красноярск</option>
+                <option value="Другое место">Другое место</option>
+              </select></span
+            >
+          </label>
+          <label class="booking__field">
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#pin"></use>
+            </svg>
+            <span class="booking__field-content"
+              ><span>Куда</span
+              ><select name="to" required aria-label="Куда отправляемся">
+                <option value="" selected disabled>Куда едем?</option>
+                <option value="Шира">Шира</option>
+                <option value="Саяногорск">Саяногорск</option>
+                <option value="Приисковый">Приисковый</option>
+                <option value="Красноярск">Красноярск</option>
+                <option value="Аэропорт Абакана">Аэропорт Абакана</option>
+                <option value="Абакан">Абакан</option>
+                <option value="Другое место">Другое место</option>
+              </select></span
+            >
+          </label>
+          <label class="booking__field">
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#calendar"></use>
+            </svg>
+            <span class="booking__field-content"
+              ><span>Дата поездки</span
+              ><input
+                name="date"
+                type="date"
+                required
+                aria-label="Выберите дату поездки"
+            /></span>
+          </label>
+          <label class="booking__field">
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#people"></use>
+            </svg>
+            <span class="booking__field-content"
+              ><span>Пассажиры</span
+              ><select name="passengers" aria-label="Количество пассажиров">
+                <option value="1">1 пассажир</option>
+                <option value="2">2 пассажира</option>
+                <option value="3">3 пассажира</option>
+                <option value="4">4 пассажира</option>
+                <option value="5">5 пассажиров</option>
+                <option value="6">6 пассажиров</option>
+                <option value="7">7 пассажиров</option>
+                <option value="8">8 пассажиров</option>
+              </select></span
+            >
+          </label>
+          <button class="booking__submit" type="submit">
+            Узнать стоимость
+          </button>
+        </form>
+        <p class="booking__note">
+          Стоимость рассчитывается индивидуально после уточнения маршрута и
+          деталей поездки.
+        </p>
+      </section>
+
+      <section
+        class="fleet container"
+        id="autopark"
+        aria-labelledby="fleet-heading"
+      >
+        <div class="fleet__intro" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__dot"></span> НАШ АВТОПАРК</p>
+          <h2 id="fleet-heading">Выберите свой<br />автомобиль</h2>
+          <p>Современные, комфортабельные минивэны для приятных поездок.</p>
+          <a class="text-link" href="#booking"
+            >Подобрать автомобиль <span aria-hidden="true">+</span></a
+          >
+        </div>
+        <div class="fleet__cards">
+          <article class="car-card" data-reveal>
+            <div class="car-card__image">
+              <img
+                src="/site/img/stepwgn-white.png"
+                alt="Белый минивэн Honda Stepwgn — иллюстрация из макета"
+                loading="lazy"
+              /><span class="car-card__tag">МИНИВЭН</span
+              ><button
+                type="button"
+                class="car-card__select"
+                data-select-car="Honda Stepwgn (белый)"
+                aria-label="Выбрать белый Honda Stepwgn"
+              >
+                +
+              </button>
+            </div>
+            <div class="car-card__caption">
+              <h3>Honda Stepwgn</h3>
+              <p>Простор и комфорт в дороге</p>
+            </div>
+          </article>
+          <article class="car-card" data-reveal>
+            <div class="car-card__image">
+              <img
+                src="/site/img/stepwgn-dark.png"
+                alt="Тёмный минивэн Honda Stepwgn — иллюстрация из макета"
+                loading="lazy"
+              /><span class="car-card__tag">МИНИВЭН</span
+              ><button
+                type="button"
+                class="car-card__select"
+                data-select-car="Honda Stepwgn (тёмный)"
+                aria-label="Выбрать тёмный Honda Stepwgn"
+              >
+                +
+              </button>
+            </div>
+            <div class="car-card__caption">
+              <h3>Honda Stepwgn</h3>
+              <p>Продуманный комфорт</p>
+            </div>
+          </article>
+          <article class="car-card" data-reveal>
+            <div class="car-card__image">
+              <img
+                src="/site/img/voxy-white.png"
+                alt="Белый минивэн Toyota Voxy — иллюстрация из макета"
+                loading="lazy"
+              /><span class="car-card__tag">МИНИВЭН</span
+              ><button
+                type="button"
+                class="car-card__select"
+                data-select-car="Toyota Voxy"
+                aria-label="Выбрать Toyota Voxy"
+              >
+                +
+              </button>
+            </div>
+            <div class="car-card__caption">
+              <h3>Toyota Voxy</h3>
+              <p>Стильный и вместительный</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="explore" id="services" aria-label="Комфорт и направления">
+        <div class="explore__comfort" data-reveal>
+          <img
+            src="/site/img/interior.webp"
+            alt="Пример просторного салона пассажирского минивэна"
+            loading="lazy"
+          />
+          <div class="explore__comfort-shade"></div>
+          <div class="explore__comfort-copy">
+            <p class="eyebrow eyebrow--light">
+              <span class="eyebrow__dot"></span> КОМФОРТ В ДЕТАЛЯХ
+            </p>
+            <h2>Больше, чем<br />просто поездка.</h2>
+            <p>
+              Удобство для каждого пассажира. В дороге можно расслабиться и
+              наслаждаться путешествием.
+            </p>
+            <a
+              href="#booking"
+              class="round-link"
+              aria-label="Заказать комфортную поездку"
+              >+</a
+            >
+          </div>
+        </div>
+        <div class="explore__routes" id="routes" data-reveal>
+          <div class="explore__routes-head">
+            <p class="eyebrow">
+              <span class="eyebrow__dot"></span> ПОПУЛЯРНЫЕ НАПРАВЛЕНИЯ
+            </p>
+            <span>Откройте Хакасию с комфортом</span>
+          </div>
+          <div class="route-grid">
+            <button class="route-card" data-route="Шира" type="button">
+              <img
+                src="/site/img/route-shira.webp"
+                alt=""
+                loading="eager"
+              /><span class="route-card__text"
+                ><strong>Шира</strong><small>Озёра и отдых</small></span
+              >
+            </button>
+            <button class="route-card" data-route="Саяногорск" type="button">
+              <img
+                src="/site/img/route-sayanogorsk.webp"
+                alt=""
+                loading="eager"
+              /><span class="route-card__text"
+                ><strong>Саяногорск</strong><small>Природа и горы</small></span
+              >
+            </button>
+            <button class="route-card" data-route="Приисковый" type="button">
+              <img
+                src="/site/img/route-priiskovy.webp"
+                alt=""
+                loading="eager"
+              /><span class="route-card__text"
+                ><strong>Приисковый</strong><small>Горный отдых</small></span
+              >
+            </button>
+            <button class="route-card" data-route="Красноярск" type="button">
+              <img
+                src="/site/img/route-krasnoyarsk.webp"
+                alt=""
+                loading="eager"
+              /><span class="route-card__text"
+                ><strong>Красноярск</strong><small>Межгород</small></span
+              >
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="values" id="about" aria-label="Наш подход к поездкам">
+        <div class="values__background" aria-hidden="true"></div>
+        <div class="values__inner container">
+          <div class="value" data-reveal>
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#star"></use>
+            </svg>
+            <div>
+              <h3>Индивидуальный подход</h3>
+              <p>Учитываем пожелания и особенности маршрута.</p>
+            </div>
+          </div>
+          <div class="value" data-reveal>
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#clock"></use>
+            </svg>
+            <div>
+              <h3>Пунктуальность</h3>
+              <p>Согласуем время и детали заранее.</p>
+            </div>
+          </div>
+          <div class="value" data-reveal>
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#map"></use>
+            </svg>
+            <div>
+              <h3>Знание региона</h3>
+              <p>Популярные маршруты по Хакасии.</p>
+            </div>
+          </div>
+          <div class="value" data-reveal>
+            <svg class="icon" aria-hidden="true">
+              <use href="/site/img/icons.svg#shield"></use>
+            </svg>
+            <div>
+              <h3>Забота в пути</h3>
+              <p>Комфорт и внимание к пассажирам.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        class="last-word container"
+        aria-labelledby="last-word-title"
+        data-reveal
+      >
+        <div>
+          <p class="eyebrow">
+            <span class="eyebrow__dot"></span> ВАШЕ ПУТЕШЕСТВИЕ
+          </p>
+          <h2 id="last-word-title">Всё начинается<br />с хорошего маршрута.</h2>
+        </div>
+        <div>
+          <p>
+            Расскажите, куда вы направляетесь. Подберём подходящий формат
+            поездки и обсудим детали.
+          </p>
+          <a class="button button--dark" href="#booking">Обсудить поездку</a>
+        </div>
+      </section>
+    </main>
+    <site-footer></site-footer>
+
+    <dialog
+      class="lead-dialog"
+      data-lead-dialog
+      aria-labelledby="lead-dialog-title"
+    >
+      <button
+        type="button"
+        class="lead-dialog__close"
+        data-dialog-close
+        aria-label="Закрыть окно"
+      >
+        ×
+      </button>
+      <p class="eyebrow">
+        <span class="eyebrow__dot"></span> ПРЕДВАРИТЕЛЬНЫЙ ЗАПРОС
+      </p>
+      <h2 id="lead-dialog-title">Обсудим вашу поездку</h2>
+      <p class="lead-dialog__summary" data-lead-summary></p>
+      <form data-contact-form>
+        <label
+          >Как к вам обращаться<input
+            type="text"
+            name="name"
+            autocomplete="name"
+            required
+            maxlength="80"
+            placeholder="Ваше имя"
+        /></label>
+        <label
+          >Номер телефона<input
+            type="tel"
+            name="phone"
+            autocomplete="tel"
+            inputmode="tel"
+            required
+            minlength="10"
+            maxlength="25"
+            placeholder="+7 (999) 999-99-99"
+        /></label>
+        <button type="submit" class="button button--dark">Продолжить</button>
+        <p
+          class="lead-dialog__hint"
+          role="status"
+          aria-live="polite"
+          data-contact-status
+        >
+          Демонстрационная версия: отправка заявок будет подключена на этапе
+          backend. Данные никуда не передаются.
+        </p>
+      </form>
+    </dialog>
+  </body>
+</html>
