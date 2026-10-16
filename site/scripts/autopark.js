@@ -1,126 +1,123 @@
-"use strict";
+'use strict';
 
+// Трансфер19 / Автопарк. Только интерфейс: никаких запросов к API или БД.
 (() => {
-  const body = document.body;
-  const filterButtons = [...document.querySelectorAll("[data-fleet-filter]")];
-  const list = document.querySelector("[data-fleet-list]");
-  let currentFilter = "all";
-  let observer = null;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  const escapeHtml = (value) => String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-  const attr = (value) => escapeHtml(value).replace(/`/g, "&#096;");
-
-  const formatCapacity = (kg) => {
-    if (!kg) return "—";
-    return kg >= 1000 ? `${String(kg / 1000).replace(".", ",")} т` : `${kg} кг`;
-  };
-  const formatVolume = (value) => value == null ? "—" : `${String(value).replace(".", ",")} м³`;
-  const formatLength = (value) => value == null ? "—" : `${String(value).replace(".", ",")} м`;
-
-  function observeRevealItems(scope = document) {
-    const items = scope.querySelectorAll("[data-fleet-reveal]:not(.is-visible)");
-    if (!items.length) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
-      items.forEach((item) => item.classList.add("is-visible"));
-      return;
-    }
-    body.classList.add("has-fleet-motion");
-    if (!observer) {
-      observer = new IntersectionObserver((entries, currentObserver) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          entry.target.classList.add("is-visible");
-          currentObserver.unobserve(entry.target);
-        }
-      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
-    }
-    items.forEach((item) => observer.observe(item));
+  function switchPhoto(image, nextSrc, nextAlt, onCommit) {
+    if (!image || !nextSrc) return;
+    const requested = (image.dataset.requestVersion = String(Number(image.dataset.requestVersion || 0) + 1));
+    if (image.getAttribute('src') === nextSrc) { image.classList.remove('is-changing'); return; }
+    const preload = new Image();
+    preload.onload = () => {
+      if (requested !== image.dataset.requestVersion) return;
+      if (prefersReducedMotion.matches) {
+        image.src = nextSrc;
+        image.alt = nextAlt;
+        onCommit?.();
+        return;
+      }
+      image.classList.add('is-changing');
+      window.setTimeout(() => {
+        if (requested !== image.dataset.requestVersion) return;
+        image.src = nextSrc;
+        image.alt = nextAlt;
+        image.classList.remove('is-changing');
+        onCommit?.();
+      }, 205);
+    };
+    preload.onerror = () => {
+      if (requested === image.dataset.requestVersion) image.classList.remove('is-changing');
+    };
+    preload.src = nextSrc;
   }
 
-  function applyFilter(filter) {
-    currentFilter = filter;
-    document.querySelectorAll("[data-fleet-card]").forEach((card) => {
-      const categories = (card.dataset.category || "").split(/\s+/).filter(Boolean);
-      card.classList.toggle("is-filtered-out", filter !== "all" && !categories.includes(filter));
-    });
-  }
-
-  function vehicleCard(vehicle) {
-    const rawCategories = String(vehicle.categories || "")
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    const categories = new Set(rawCategories.map((item) => item.toLowerCase()));
-    const bodyType = String(vehicle.bodyType || "").trim().toLowerCase();
-
-    // Фильтры каталога должны работать от данных, которые владелец реально
-    // заполняет в админке, а не требовать скрытых служебных значений.
-    if (bodyType.includes("фургон") || categories.has("фургон") || categories.has("фургоны") || categories.has("van")) {
-      categories.add("van");
-    }
-    if (categories.has("переезд") || categories.has("переезды") || categories.has("moving")) {
-      categories.add("moving");
-    }
-    if (categories.has("грузчики") || categories.has("с грузчиками") || categories.has("loaders")) {
-      categories.add("loaders");
-    }
-    if (vehicle.ownershipType === "PARTNER") categories.add("partner");
-
-    const typeLabel = vehicle.ownershipType === "PARTNER"
-      ? `Партнёрский транспорт${vehicle.bodyType ? ` · ${vehicle.bodyType}` : ""}`
-      : vehicle.bodyType || "Грузовой автомобиль";
-    const image = vehicle.previewImage || "/site/img/fleet-next.webp";
-    const availability = vehicle.status === "AVAILABLE" ? "Доступна" : vehicle.status === "BUSY" ? "Занята" : "По запросу";
-
-    return `<article class="fleet-card" data-fleet-card data-category="${attr([...categories].join(" "))}" data-fleet-reveal>
-      <div class="fleet-card__media"><img src="${attr(image)}" alt="${attr(`${vehicle.name} — Свои грузы`)}" loading="lazy" decoding="async" /></div>
-      <div class="fleet-card__body">
-        <div><p class="fleet-card__type">${escapeHtml(typeLabel)}</p><h3 class="fleet-card__title">${escapeHtml(vehicle.name)}</h3><p class="fleet-card__description">${escapeHtml(vehicle.shortDescription || "Подберём машину под вашу задачу и маршрут.")}</p></div>
-        <dl class="fleet-card__specs">
-          <div><dt>Грузоподъёмность</dt><dd>${escapeHtml(formatCapacity(vehicle.capacityKg))}</dd></div>
-          <div><dt>Объём кузова</dt><dd>${escapeHtml(formatVolume(vehicle.volumeM3))}</dd></div>
-          <div><dt>Длина кузова</dt><dd>${escapeHtml(formatLength(vehicle.bodyLengthM))}</dd></div>
-          <div><dt>Доступность</dt><dd>${escapeHtml(availability)}</dd></div>
-        </dl>
-        <a class="fleet-card__button" href="/autopark/${encodeURIComponent(vehicle.slug)}">Подробнее о машине</a>
-      </div>
-    </article>`;
-  }
-
-  async function loadFleet() {
-    if (!list) return;
-    try {
-      const response = await fetch("/api/vehicles", { headers: { Accept: "application/json" } });
-      const data = await response.json();
-      if (!response.ok || !Array.isArray(data.vehicles)) throw new Error("Не удалось загрузить автопарк");
-      list.innerHTML = data.vehicles.length
-        ? data.vehicles.map(vehicleCard).join("")
-        : '<p class="fleet-catalog__intro">Сейчас машины временно скрыты. Оставьте заявку — подберём транспорт вручную.</p>';
-      observeRevealItems(list);
-      applyFilter(currentFilter);
-    } catch (error) {
-      console.warn("Fleet API fallback:", error.message);
-      observeRevealItems(document);
-    }
-  }
-
-  filterButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      filterButtons.forEach((item) => {
-        const active = item === button;
-        item.classList.toggle("is-active", active);
-        item.setAttribute("aria-pressed", String(active));
+  document.querySelectorAll('[data-vehicle-card]').forEach((card) => {
+    const main = card.querySelector('[data-gallery-main]');
+    const thumbnails = [...card.querySelectorAll('[data-gallery-thumb]')];
+    thumbnails.forEach((thumbnail) => thumbnail.addEventListener('click', () => {
+      thumbnails.forEach((item) => {
+        const active = item === thumbnail;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-pressed', String(active));
       });
-      applyFilter(button.dataset.fleetFilter || "all");
-    });
+      switchPhoto(main, thumbnail.dataset.src, thumbnail.dataset.alt || '', null);
+    }));
   });
 
-  observeRevealItems(document);
-  loadFleet();
+  const feature = document.querySelector('.autopark-hero__feature');
+  if (feature) {
+    const photo = feature.querySelector('[data-feature-photo]');
+    const title = feature.querySelector('[data-feature-title]');
+    const description = feature.querySelector('[data-feature-description]');
+    const index = feature.querySelector('[data-feature-index]');
+    const slides = [
+      { src: '/site/img/autopark-salon.webp', alt: 'Пример просторного салона минивэна', title: 'Просторный салон', description: 'Комфорт в дороге' },
+      { src: '/site/img/autopark-interior.webp', alt: 'Пример пассажирских сидений минивэна', title: 'Удобные сиденья', description: 'Приятная поездка' }
+    ];
+    let current = 0;
+    function navigate(delta) {
+      current = (current + delta + slides.length) % slides.length;
+      const next = slides[current];
+      switchPhoto(photo, next.src, next.alt, () => {
+        title.textContent = next.title;
+        description.textContent = next.description;
+        index.textContent = `${String(current + 1).padStart(2, '0')} / 02`;
+      });
+    }
+    feature.querySelector('[data-feature-previous]')?.addEventListener('click', () => navigate(-1));
+    feature.querySelector('[data-feature-next]')?.addEventListener('click', () => navigate(1));
+  }
+
+  const carInfo = {
+    'stepwgn-white': {
+      title: 'Honda Stepwgn · белый',
+      description: 'Минивэн для семейных и индивидуальных поездок, городских трансферов и междугородних маршрутов.',
+      photo: '/site/img/autopark-stepwgn-white.webp',
+      alt: 'Белый Honda Stepwgn на фоне гор'
+    },
+    'stepwgn-dark': {
+      title: 'Honda Stepwgn · тёмный',
+      description: 'Практичный вариант для поездок небольшой компанией, по личным делам и за пределы города.',
+      photo: '/site/img/autopark-stepwgn-dark.webp',
+      alt: 'Тёмный Honda Stepwgn на фоне гор'
+    },
+    'voxy-white': {
+      title: 'Toyota Voxy · белый',
+      description: 'Комфортный минивэн для путешествий, трансферов и маршрутов по Хакасии и соседним регионам.',
+      photo: '/site/img/autopark-voxy-white.webp',
+      alt: 'Белый Toyota Voxy на фоне гор'
+    }
+  };
+  const dialog = document.querySelector('[data-car-dialog]');
+  if (dialog) {
+    document.querySelectorAll('[data-car-details]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const car = carInfo[button.dataset.carDetails];
+        if (!car) return;
+        dialog.querySelector('[data-dialog-title]').textContent = car.title;
+        dialog.querySelector('[data-dialog-description]').textContent = car.description;
+        const photo = dialog.querySelector('[data-dialog-photo]');
+        photo.src = car.photo;
+        photo.alt = car.alt;
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+      });
+    });
+    dialog.querySelector('[data-car-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  const reveals = [...document.querySelectorAll('[data-reveal]')];
+  if (!('IntersectionObserver' in window) || prefersReducedMotion.matches) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '0px 0px -20px 0px', threshold: 0.04 });
+  document.body.classList.add('has-motion');
+  reveals.forEach((node) => observer.observe(node));
 })();

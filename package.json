@@ -8,7 +8,7 @@
     "preview": "node scripts/preview-public.js",
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "sass": "sass --watch site/sass/home.scss:site/css/home.min.css --style=compressed --no-source-map",
+    "sass": "sass --watch site/sass/home.scss:site/css/home.min.css site/sass/autopark.scss:site/css/autopark.min.css --style=compressed --no-source-map",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
@@ -17,8 +17,8 @@
     "vehicles:seed": "node scripts/seed-vehicles.js",
     "db:backup": "node scripts/backup-database.js",
     "test": "node --test --test-concurrency=1",
-    "sass:build": "sass site/sass/home.scss site/css/home.min.css --style=compressed --no-source-map",
-    "sass:dev": "sass --watch site/sass/home.scss:site/css/home.css --style=expanded --no-source-map"
+    "sass:build": "sass site/sass/home.scss:site/css/home.min.css site/sass/autopark.scss:site/css/autopark.min.css --style=compressed --no-source-map",
+    "sass:dev": "sass --watch site/sass/home.scss:site/css/home.css site/sass/autopark.scss:site/css/autopark.css --style=expanded --no-source-map"
   },
   "engines": {
     "node": ">=22"
