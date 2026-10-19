@@ -3,8 +3,8 @@
 const state = {
   user: null,
   csrfToken: '',
-  requestView: localStorage.getItem('sg-request-view') === 'board' ? 'board' : 'list',
-  taskView: localStorage.getItem('sg-task-view') === 'board' ? 'board' : 'list',
+  requestView: localStorage.getItem('t19-request-view') === 'board' ? 'board' : 'list',
+  taskView: localStorage.getItem('t19-task-view') === 'board' ? 'board' : 'list',
   requestFilters: { search: '', status: '', type: '' },
   fleetFilters: { search: '', status: '', published: '' },
   vehicles: [],
@@ -116,15 +116,6 @@ function clientContact(client) {
   return client?.phone || 'Телефон не указан';
 }
 
-function formatCapacity(kg) {
-  if (!kg) return '—';
-  return kg >= 1000 ? `${String(kg / 1000).replace('.', ',')} т` : `${kg} кг`;
-}
-
-function formatMeters(value) {
-  return value == null ? '—' : `${String(value).replace('.', ',')} м`;
-}
-
 async function api(path, options = {}) {
   const method = options.method || 'GET';
   const headers = { Accept: 'application/json', ...(options.headers || {}) };
@@ -174,7 +165,7 @@ function emptyState(icon, title, textValue = '') {
 }
 
 function pageHeader(title, subtitle, actions = '') {
-  return `<header class="page-header"><div><span class="control-eyebrow">СВОИ ГРУЗЫ</span><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><div class="page-header__actions">${actions}</div></header>`;
+  return `<header class="page-header"><div><span class="control-eyebrow">Трансфер19</span><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><div class="page-header__actions">${actions}</div></header>`;
 }
 
 function setActiveNav(route) {
@@ -185,7 +176,7 @@ function openModal(title, body, footer = '', wide = false) {
   if (!modalRoot.firstElementChild) {
     modalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   }
-  modalRoot.innerHTML = `<div class="modal-backdrop" data-modal-backdrop><section class="modal${wide ? ' modal--wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"><header class="modal__header"><div><span class="control-eyebrow">СВОИ ГРУЗЫ</span><h2 id="modal-title">${escapeHtml(title)}</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Закрыть"><i class="ti ti-x"></i></button></header><div class="modal__body">${body}</div>${footer ? `<footer class="modal__footer">${footer}</footer>` : ''}</section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop" data-modal-backdrop><section class="modal${wide ? ' modal--wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"><header class="modal__header"><div><span class="control-eyebrow">Трансфер19</span><h2 id="modal-title">${escapeHtml(title)}</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Закрыть"><i class="ti ti-x"></i></button></header><div class="modal__body">${body}</div>${footer ? `<footer class="modal__footer">${footer}</footer>` : ''}</section></div>`;
   document.body.classList.add('is-modal-open');
   appShell?.setAttribute('inert', '');
   const modal = modalRoot.querySelector('.modal');
@@ -244,7 +235,7 @@ function sourceOptions(selected = 'Другое') {
 function requestRow(order) {
   const mainDate = order.scheduledAt || order.createdAt;
   const vehicleName = order.vehicleRecord?.name || order.vehicle || 'Машина не выбрана';
-  return `<article class="request-row" data-request-id="${order.id}" tabindex="0" role="button" aria-label="Открыть заявку"><span class="request-row__date"><b>${escapeHtml(time(mainDate))}</b><small>${escapeHtml(shortDate(mainDate))}</small></span><span class="request-row__route"><b>${escapeHtml(routeText(order))}</b><small>${escapeHtml(order.cargoType || vehicleName)}</small></span><span class="request-row__client"><b>${escapeHtml(order.client?.name || 'Без имени')}</b><small>${escapeHtml(clientContact(order.client))}</small></span>${orderStatusBadge(order.status)}<strong class="request-row__amount">${order.amountCents == null ? '—' : money(order.amountCents)}</strong></article>`;
+  return `<article class="request-row" data-request-id="${order.id}" tabindex="0" role="button" aria-label="Открыть заявку"><span class="request-row__date"><b>${escapeHtml(time(mainDate))}</b><small>${escapeHtml(shortDate(mainDate))}</small></span><span class="request-row__route"><b>${escapeHtml(routeText(order))}</b><small>${escapeHtml((order.passengerCount ? `${order.passengerCount} пассаж.` : vehicleName))}</small></span><span class="request-row__client"><b>${escapeHtml(order.client?.name || 'Без имени')}</b><small>${escapeHtml(clientContact(order.client))}</small></span>${orderStatusBadge(order.status)}<strong class="request-row__amount">${order.amountCents == null ? '—' : money(order.amountCents)}</strong></article>`;
 }
 
 async function renderDashboard() {
@@ -265,24 +256,24 @@ async function renderDashboard() {
     <div class="dashboard-grid">
       <section class="panel panel--span-2"><header class="panel__header"><div><h2>Сегодняшние заявки</h2><p>Последние обращения за день</p></div><a class="text-link" href="#/requests">Все заявки</a></header><div class="request-list">${data.recentOrders.length ? data.recentOrders.map(requestRow).join('') : emptyState('inbox', 'Сегодня заявок пока нет')}</div></section>
 
-      <section class="panel"><header class="panel__header"><div><h3>Ближайшие</h3><p>Запланированные перевозки</p></div></header><div class="compact-list">${data.planned.length ? data.planned.map((order) => `<button class="compact-card" type="button" data-request-id="${order.id}"><span><b>${escapeHtml(dateTime(order.scheduledAt))}</b><small>${escapeHtml(routeText(order))}</small></span><i class="ti ti-chevron-right"></i></button>`).join('') : emptyState('calendar', 'Нет запланированных заявок')}</div></section>
+      <section class="panel"><header class="panel__header"><div><h3>Ближайшие</h3><p>Запланированные поездки</p></div></header><div class="compact-list">${data.planned.length ? data.planned.map((order) => `<button class="compact-card" type="button" data-request-id="${order.id}"><span><b>${escapeHtml(dateTime(order.scheduledAt))}</b><small>${escapeHtml(routeText(order))}</small></span><i class="ti ti-chevron-right"></i></button>`).join('') : emptyState('calendar', 'Нет запланированных заявок')}</div></section>
 
       <section class="panel"><header class="panel__header"><div><h3>Задачи</h3><p>Что нельзя забыть</p></div><a class="text-link" href="#/tasks">Открыть</a></header><div class="compact-list">${data.activeTasks.length ? data.activeTasks.map((task) => `<button class="compact-card" type="button" data-task-id="${task.id}"><span><b>${escapeHtml(task.title)}</b><small>${task.dueAt ? dateTime(task.dueAt) : 'Без срока'} · ${escapeHtml(labels.taskPriority[task.priority])}</small></span><i class="ti ti-chevron-right"></i></button>`).join('') : emptyState('circle-check', 'Активных задач нет')}</div></section>
 
-      <section class="panel panel--span-2"><header class="panel__header"><div><h2>Автопарк</h2><p>${fleetAttention.length ? 'Есть машины, требующие внимания' : 'Все машины доступны'}</p></div><a class="text-link" href="#/fleet">Автопарк</a></header><div class="fleet-mini-grid">${data.vehicles.length ? data.vehicles.map((vehicle) => `<button class="fleet-mini" type="button" data-vehicle-id="${vehicle.id}"><span class="fleet-mini__media">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-truck"></i>'}</span><span class="fleet-mini__copy"><b>${escapeHtml(vehicle.name)}</b><small>${escapeHtml(vehicle.bodyType || 'Автомобиль')}</small></span>${vehicleStatusBadge(vehicle.status)}</button>`).join('') : emptyState('truck-off', 'Автопарк пуст')}</div></section>
+      <section class="panel panel--span-2"><header class="panel__header"><div><h2>Автопарк</h2><p>${fleetAttention.length ? 'Есть машины, требующие внимания' : 'Все машины доступны'}</p></div><a class="text-link" href="#/fleet">Автопарк</a></header><div class="fleet-mini-grid">${data.vehicles.length ? data.vehicles.map((vehicle) => `<button class="fleet-mini" type="button" data-vehicle-id="${vehicle.id}"><span class="fleet-mini__media">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-car"></i>'}</span><span class="fleet-mini__copy"><b>${escapeHtml(vehicle.name)}</b><small>${escapeHtml(vehicle.serviceArea || 'Автомобиль')}</small></span>${vehicleStatusBadge(vehicle.status)}</button>`).join('') : emptyState('car-off', 'Автопарк пуст')}</div></section>
     </div>
   </div>`;
 }
 
 function requestFiltersMarkup() {
-  return `<section class="filters-bar"><label class="search-field"><i class="ti ti-search"></i><input id="request-search" type="search" maxlength="120" placeholder="Имя, телефон, маршрут, груз" value="${attr(state.requestFilters.search)}"></label><select class="control-select" id="request-status"><option value="">Все статусы</option>${Object.entries(labels.orderStatus).map(([value, label]) => `<option value="${value}"${state.requestFilters.status === value ? ' selected' : ''}>${label}</option>`).join('')}</select><select class="control-select" id="request-type"><option value="">Все типы</option>${Object.entries(labels.orderType).map(([value, label]) => `<option value="${value}"${state.requestFilters.type === value ? ' selected' : ''}>${label}</option>`).join('')}</select><div class="view-toggle"><button type="button" data-request-view="list" class="${state.requestView === 'list' ? 'is-active' : ''}" aria-label="Список"><i class="ti ti-list"></i></button><button type="button" data-request-view="board" class="${state.requestView === 'board' ? 'is-active' : ''}" aria-label="Доска"><i class="ti ti-layout-kanban"></i></button></div></section>`;
+  return `<section class="filters-bar"><label class="search-field"><i class="ti ti-search"></i><input id="request-search" type="search" maxlength="120" placeholder="Имя, телефон, маршрут, пассажиры" value="${attr(state.requestFilters.search)}"></label><select class="control-select" id="request-status"><option value="">Все статусы</option>${Object.entries(labels.orderStatus).map(([value, label]) => `<option value="${value}"${state.requestFilters.status === value ? ' selected' : ''}>${label}</option>`).join('')}</select><select class="control-select" id="request-type"><option value="">Все типы</option>${Object.entries(labels.orderType).map(([value, label]) => `<option value="${value}"${state.requestFilters.type === value ? ' selected' : ''}>${label}</option>`).join('')}</select><div class="view-toggle"><button type="button" data-request-view="list" class="${state.requestView === 'list' ? 'is-active' : ''}" aria-label="Список"><i class="ti ti-list"></i></button><button type="button" data-request-view="board" class="${state.requestView === 'board' ? 'is-active' : ''}" aria-label="Доска"><i class="ti ti-layout-kanban"></i></button></div></section>`;
 }
 
 function requestBoard(orders) {
   const columns = [['NEW', 'Новые'], ['PLANNED', 'Запланированные'], ['COMPLETED', 'Выполненные'], ['CANCELLED', 'Отменённые']];
   return `<section class="board">${columns.map(([status, title]) => {
     const rows = orders.filter((order) => order.status === status);
-    return `<div class="board-column"><header class="board-column__header"><h3>${title}</h3><span>${rows.length}</span></header><div class="board-column__body">${rows.length ? rows.map((order) => `<button class="board-card" type="button" data-request-id="${order.id}"><span class="board-card__top">${orderStatusBadge(order.status)}<small>${escapeHtml(shortDate(order.createdAt))}</small></span><b>${escapeHtml(order.client?.name || 'Без имени')}</b><p>${escapeHtml(routeText(order))}</p><span class="board-card__foot"><small>${escapeHtml(order.cargoType || order.vehicle || 'Груз не указан')}</small><strong>${order.amountCents == null ? '—' : money(order.amountCents)}</strong></span></button>`).join('') : '<div class="board-empty">Пусто</div>'}</div></div>`;
+    return `<div class="board-column"><header class="board-column__header"><h3>${title}</h3><span>${rows.length}</span></header><div class="board-column__body">${rows.length ? rows.map((order) => `<button class="board-card" type="button" data-request-id="${order.id}"><span class="board-card__top">${orderStatusBadge(order.status)}<small>${escapeHtml(shortDate(order.createdAt))}</small></span><b>${escapeHtml(order.client?.name || 'Без имени')}</b><p>${escapeHtml(routeText(order))}</p><span class="board-card__foot"><small>${escapeHtml(order.passengerCount ? `${order.passengerCount} пассаж.` : (order.vehicle || 'Число пассажиров не указано'))}</small><strong>${order.amountCents == null ? '—' : money(order.amountCents)}</strong></span></button>`).join('') : '<div class="board-empty">Пусто</div>'}</div></div>`;
   }).join('')}</section>`;
 }
 
@@ -324,7 +315,6 @@ function requestFormMarkup(order = null) {
   const isScheduled = order?.type === 'SCHEDULED';
   const amount = order?.amountCents == null ? '' : order.amountCents / 100;
   const paidAmount = order?.paidAmountCents ? order.paidAmountCents / 100 : '';
-  const loaders = order?.loadersRequired === true ? 'true' : order?.loadersRequired === false ? 'false' : '';
 
   return `<form id="request-form" class="form-grid request-form" novalidate data-request-id="${order?.id || ''}" data-current-status="${attr(order?.status || '')}">
     <div class="request-type-toggle field--wide" role="group" aria-label="Тип заявки">
@@ -332,7 +322,7 @@ function requestFormMarkup(order = null) {
       <button type="button" data-request-type-choice="SCHEDULED" class="${isScheduled ? 'is-active' : ''}">Запланированный</button>
     </div>
     <input type="hidden" name="type" value="${isScheduled ? 'SCHEDULED' : 'REGULAR'}">
-    <p class="request-form__hint field--wide" id="request-type-hint">${isScheduled ? 'Укажите дату и время перевозки — статус будет «Запланированная».' : 'Обычная заявка создаётся со статусом «Новая».'}</p>
+    <p class="request-form__hint field--wide" id="request-type-hint">${isScheduled ? 'Укажите дату и время поездки — статус будет «Запланированная».' : 'Обычная заявка создаётся со статусом «Новая».'}</p>
     <label class="control-field field--wide" id="request-scheduled-field"${isScheduled ? '' : ' hidden'}><span class="control-field__label">Дата и время *</span><input class="control-input" name="scheduledAt" type="datetime-local" value="${attr(datetimeLocal(order?.scheduledAt))}"></label>
 
     <div class="request-route field--wide">
@@ -344,11 +334,11 @@ function requestFormMarkup(order = null) {
     <label class="control-field"><span class="control-field__label">Имя клиента *</span><input class="control-input" name="clientName" required maxlength="120" value="${attr(order?.client?.name || '')}" placeholder="Например, Алексей"></label>
     <label class="control-field field--wide"><span class="control-field__label">Автомобиль</span><select class="control-select" name="vehicleId">${vehicleOptions(order?.vehicleId)}</select></label>
 
-    <label class="control-field"><span class="control-field__label">Что перевозим</span><input class="control-input" name="cargoType" maxlength="120" value="${attr(order?.cargoType || '')}" placeholder="Мебель, техника, коробки"></label>
-    <label class="control-field"><span class="control-field__label">Грузчики</span><select class="control-select" name="loadersRequired"><option value=""${loaders === '' ? ' selected' : ''}>Не указано</option><option value="true"${loaders === 'true' ? ' selected' : ''}>Нужны</option><option value="false"${loaders === 'false' ? ' selected' : ''}>Не нужны</option></select></label>
+    <label class="control-field"><span class="control-field__label">Количество пассажиров</span><input class="control-input" name="passengerCount" type="number" min="1" max="20" step="1" value="${attr(order?.passengerCount ?? '')}" placeholder="Укажите число пассажиров"></label>
+    <label class="control-field"><span class="control-field__label">Багаж</span><input class="control-input" name="luggageDetails" maxlength="500" value="${attr(order?.luggageDetails || '')}" placeholder="Чемоданы, коляска, прочее"></label>
 
-    <label class="control-field"><span class="control-field__label">Стоимость, ₽ *</span><input class="control-input" name="amount" type="number" min="0" max="100000000" step="1" required value="${attr(amount)}" placeholder="Сумма заказа"></label>
-    <label class="control-field"><span class="control-field__label">Статус оплаты</span><select class="control-select" name="paymentStatus"><option value="PAID"${order?.paymentStatus === 'PAID' || !order ? ' selected' : ''}>Оплачено</option><option value="UNPAID"${order?.paymentStatus === 'UNPAID' ? ' selected' : ''}>Не оплачено</option><option value="PARTIAL"${order?.paymentStatus === 'PARTIAL' ? ' selected' : ''}>Частично</option></select></label>
+    <label class="control-field"><span class="control-field__label">Стоимость, ₽</span><input class="control-input" name="amount" type="number" min="0" max="100000000" step="1" value="${attr(amount)}" placeholder="Сумма заказа"></label>
+    <label class="control-field"><span class="control-field__label">Статус оплаты</span><select class="control-select" name="paymentStatus"><option value="PAID"${order?.paymentStatus === 'PAID' ? ' selected' : ''}>Оплачено</option><option value="UNPAID"${order?.paymentStatus === 'UNPAID' ? ' selected' : ''}>Не оплачено</option><option value="PARTIAL"${order?.paymentStatus === 'PARTIAL' ? ' selected' : ''}>Частично</option></select></label>
     <label class="control-field"><span class="control-field__label">Способ оплаты</span><select class="control-select" name="paymentMethod"><option value="">Не указан</option>${Object.entries(labels.paymentMethod).map(([value, label]) => `<option value="${value}"${order?.paymentMethod === value ? ' selected' : ''}>${label}</option>`).join('')}</select></label>
     <label class="control-field"><span class="control-field__label">Оплачено, ₽</span><input class="control-input" name="paidAmount" type="number" min="0" step="1" value="${attr(paidAmount)}" placeholder="Для частичной оплаты"></label>
     <label class="control-field"><span class="control-field__label">Источник</span><select class="control-select" name="source">${sourceOptions(order?.source || 'Другое')}</select></label>
@@ -373,7 +363,7 @@ async function openRequestForm(order = null) {
       scheduledField.hidden = type !== 'SCHEDULED';
       scheduledField.querySelector('input').required = type === 'SCHEDULED';
       hint.textContent = type === 'SCHEDULED'
-        ? 'Укажите дату и время перевозки — статус будет «Запланированная».'
+        ? 'Укажите дату и время поездки — статус будет «Запланированная».'
         : 'Обычная заявка создаётся со статусом «Новая».';
       if (!form.dataset.requestId) form.elements.paymentStatus.value = type === 'SCHEDULED' ? 'UNPAID' : 'PAID';
     });
@@ -422,10 +412,10 @@ async function showRequest(id) {
     <div class="detail-item"><span>Клиент</span><strong>${escapeHtml(order.client?.name || 'Без имени')}</strong></div>
     <div class="detail-item"><span>Телефон</span><strong>${order.client?.phone ? `<a href="tel:${attr(order.client.phoneNormalized || order.client.phone)}">${escapeHtml(order.client.phone)}</a>` : 'Не указан'}</strong></div>
     <div class="detail-item detail-item--wide"><span>Маршрут</span><strong>${escapeHtml(routeText(order))}</strong></div>
-    <div class="detail-item"><span>Груз</span><strong>${escapeHtml(order.cargoType || '—')}</strong></div>
-    <div class="detail-item"><span>Грузчики</span><strong>${order.loadersRequired === true ? 'Нужны' : order.loadersRequired === false ? 'Не нужны' : 'Не указано'}</strong></div>
+    <div class="detail-item"><span>Пассажиры</span><strong>${order.passengerCount ?? 'Не указаны'}</strong></div>
+    <div class="detail-item"><span>Багаж</span><strong>${escapeHtml(order.luggageDetails || 'Не указан')}</strong></div>
     <div class="detail-item"><span>Машина</span><strong>${escapeHtml(order.vehicleRecord?.name || order.vehicle || 'Не выбрана')}</strong></div>
-    <div class="detail-item"><span>Дата перевозки</span><strong>${escapeHtml(dateTime(order.scheduledAt))}</strong></div>
+    <div class="detail-item"><span>Дата поездки</span><strong>${escapeHtml(dateTime(order.scheduledAt))}</strong></div>
     <div class="detail-item"><span>Стоимость</span><strong>${order.amountCents == null ? 'Не указана' : money(order.amountCents)}</strong></div>
     <div class="detail-item"><span>Оплата</span><strong>${escapeHtml(labels.paymentStatus[order.paymentStatus])}${debt ? ` · долг ${money(debt)}` : ''}</strong></div>
     <div class="detail-item"><span>Источник</span><strong>${escapeHtml(order.source)}</strong></div>
@@ -486,11 +476,12 @@ async function showClient(id) {
 }
 
 function fleetCard(vehicle) {
-  return `<article class="fleet-admin-card" data-vehicle-id="${vehicle.id}" tabindex="0" role="button" aria-label="Открыть ${attr(vehicle.name)}"><div class="fleet-admin-card__media">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-truck"></i>'}</div><div class="fleet-admin-card__body"><div class="fleet-admin-card__head"><div><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || vehicle.bodyType || 'Без описания')}</p></div>${vehicleStatusBadge(vehicle.status)}</div><div class="fleet-admin-card__specs"><span><b>${formatCapacity(vehicle.capacityKg)}</b><small>грузоподъёмность</small></span><span><b>${vehicle.volumeM3 ? `${String(vehicle.volumeM3).replace('.', ',')} м³` : '—'}</b><small>объём</small></span><span><b>${escapeHtml(vehicle.bodyType || '—')}</b><small>кузов</small></span></div><div class="fleet-admin-card__foot"><span>${vehicle.published ? '<i class="ti ti-eye"></i> На сайте' : '<i class="ti ti-eye-off"></i> Скрыта'}</span><span>${vehicle._count?.orders || 0} заявок</span></div></div></article>`;
+  const seats = vehicle.passengerSeats == null ? '—' : String(vehicle.passengerSeats);
+  return `<article class="fleet-admin-card" data-vehicle-id="${vehicle.id}" tabindex="0" role="button" aria-label="Открыть ${attr(vehicle.name)}"><div class="fleet-admin-card__media">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-car"></i>'}</div><div class="fleet-admin-card__body"><div class="fleet-admin-card__head"><div><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || 'Без описания')}</p></div>${vehicleStatusBadge(vehicle.status)}</div><div class="fleet-admin-card__specs"><span><b>${seats}</b><small>мест для пассажиров</small></span><span><b>${escapeHtml(vehicle.luggageCapacity || '—')}</b><small>багаж</small></span><span><b>${escapeHtml(vehicle.serviceArea || '—')}</b><small>маршруты</small></span></div><div class="fleet-admin-card__foot"><span>${vehicle.published ? '<i class="ti ti-eye"></i> На сайте' : '<i class="ti ti-eye-off"></i> Скрыта'}</span><span>${vehicle._count?.orders || 0} заявок</span></div></div></article>`;
 }
 
 function fleetFiltersMarkup() {
-  return `<section class="filters-bar"><label class="search-field search-field--grow"><i class="ti ti-search"></i><input id="fleet-search" type="search" maxlength="120" placeholder="Название, slug, кузов" value="${attr(state.fleetFilters.search)}"></label><select class="control-select" id="fleet-status"><option value="">Все статусы</option>${Object.entries(labels.vehicleStatus).map(([value, label]) => `<option value="${value}"${state.fleetFilters.status === value ? ' selected' : ''}>${label}</option>`).join('')}</select><select class="control-select" id="fleet-published"><option value="">Любая видимость</option><option value="true"${state.fleetFilters.published === 'true' ? ' selected' : ''}>На сайте</option><option value="false"${state.fleetFilters.published === 'false' ? ' selected' : ''}>Скрытые</option></select></section>`;
+  return `<section class="filters-bar"><label class="search-field search-field--grow"><i class="ti ti-search"></i><input id="fleet-search" type="search" maxlength="120" placeholder="Название, slug, особенности салона" value="${attr(state.fleetFilters.search)}"></label><select class="control-select" id="fleet-status"><option value="">Все статусы</option>${Object.entries(labels.vehicleStatus).map(([value, label]) => `<option value="${value}"${state.fleetFilters.status === value ? ' selected' : ''}>${label}</option>`).join('')}</select><select class="control-select" id="fleet-published"><option value="">Любая видимость</option><option value="true"${state.fleetFilters.published === 'true' ? ' selected' : ''}>На сайте</option><option value="false"${state.fleetFilters.published === 'false' ? ' selected' : ''}>Скрытые</option></select></section>`;
 }
 
 async function renderFleet() {
@@ -514,7 +505,7 @@ async function loadFleet() {
   state.vehicles = data.vehicles;
   const content = document.querySelector('#fleet-content');
   if (!content) return;
-  content.innerHTML = data.vehicles.length ? data.vehicles.map(fleetCard).join('') : emptyState('truck-off', 'Машины не найдены', 'Добавь автомобиль или измени фильтры.');
+  content.innerHTML = data.vehicles.length ? data.vehicles.map(fleetCard).join('') : emptyState('car-off', 'Машины не найдены', 'Добавь автомобиль или измени фильтры.');
 }
 
 function vehicleGalleryItems(vehicle) {
@@ -536,14 +527,10 @@ function vehicleFormMarkup(vehicle = null) {
   const gallery = JSON.stringify(vehicleGalleryItems(vehicle));
   const ownership = vehicle?.ownershipType || 'OWN';
   const carrier = vehicle?.carrier || {};
-  const bodyTypeOptions = ['Фургон', 'Тент', 'Бортовой', 'Рефрижератор', 'Изотермический'];
-  const currentBodyType = String(vehicle?.bodyType || '').trim();
-  const bodyTypePreset = bodyTypeOptions.includes(currentBodyType) ? currentBodyType : currentBodyType ? 'OTHER' : '';
-  const customBodyType = bodyTypePreset === 'OTHER' ? currentBodyType : '';
   return `<form id="vehicle-form" class="form-grid" data-vehicle-id="${vehicle?.id || ''}">
     <div class="form-section-title field--wide"><span>Основное</span></div>
-    <label class="control-field"><span class="control-field__label">Название *</span><input class="control-input" name="name" required maxlength="160" value="${attr(vehicle?.name || '')}" placeholder="Газель NEXT 4.2 м"></label>
-    <label class="control-field"><span class="control-field__label">Slug *</span><input class="control-input" name="slug" required maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${attr(vehicle?.slug || '')}" placeholder="gazelle-next-4-2"></label>
+    <label class="control-field"><span class="control-field__label">Название *</span><input class="control-input" name="name" required maxlength="160" value="${attr(vehicle?.name || '')}" placeholder="Honda Stepwgn"></label>
+    <label class="control-field"><span class="control-field__label">Slug *</span><input class="control-input" name="slug" required maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${attr(vehicle?.slug || '')}" placeholder="stepwgn-white"></label>
     <label class="control-field field--wide"><span class="control-field__label">Краткое описание</span><input class="control-input" name="shortDescription" maxlength="400" value="${attr(vehicle?.shortDescription || '')}" placeholder="Текст в карточке и верхнем блоке car.html"></label>
     <label class="control-field field--wide"><span class="control-field__label">Основное описание</span><textarea class="control-textarea" name="description" maxlength="4000" placeholder="Описание автомобиля">${escapeHtml(vehicle?.description || '')}</textarea></label>
 
@@ -563,20 +550,13 @@ function vehicleFormMarkup(vehicle = null) {
     </div>
 
     <div class="form-section-title field--wide"><span>Характеристики для car.html</span></div>
-    <label class="control-field"><span class="control-field__label">Грузоподъёмность, кг</span><input class="control-input" name="capacityKg" type="number" min="0" step="1" value="${attr(vehicle?.capacityKg ?? '')}"></label>
-    <label class="control-field"><span class="control-field__label">Объём, м³</span><input class="control-input" name="volumeM3" type="number" min="0" step="0.1" value="${attr(vehicle?.volumeM3 ?? '')}"></label>
-    <label class="control-field"><span class="control-field__label">Длина кузова, м</span><input class="control-input" name="bodyLengthM" type="number" min="0" step="0.1" value="${attr(vehicle?.bodyLengthM ?? '')}"></label>
-    <label class="control-field"><span class="control-field__label">Ширина кузова, м</span><input class="control-input" name="bodyWidthM" type="number" min="0" step="0.1" value="${attr(vehicle?.bodyWidthM ?? '')}"></label>
-    <label class="control-field"><span class="control-field__label">Высота кузова, м</span><input class="control-input" name="bodyHeightM" type="number" min="0" step="0.1" value="${attr(vehicle?.bodyHeightM ?? '')}"></label>
-    <label class="control-field"><span class="control-field__label">Тип кузова</span><select class="control-select" name="bodyTypePreset"><option value=""${bodyTypePreset === '' ? ' selected' : ''}>Не указано</option>${bodyTypeOptions.map((option) => `<option value="${attr(option)}"${bodyTypePreset === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}<option value="OTHER"${bodyTypePreset === 'OTHER' ? ' selected' : ''}>Другое</option></select></label>
-    <label class="control-field" data-body-type-other${bodyTypePreset === 'OTHER' ? '' : ' hidden'}><span class="control-field__label">Другой тип кузова</span><input class="control-input" name="bodyTypeOther" maxlength="120" value="${attr(customBodyType)}" placeholder="Укажите тип кузова"></label>
-    <input type="hidden" name="bodyType" value="${attr(currentBodyType)}">
-    <label class="control-field"><span class="control-field__label">Погрузка</span><input class="control-input" name="loadingType" maxlength="160" value="${attr(vehicle?.loadingType || '')}" placeholder="Задняя / боковая"></label>
-    <label class="control-field"><span class="control-field__label">Зона работы</span><input class="control-input" name="serviceArea" maxlength="180" value="${attr(vehicle?.serviceArea || '')}" placeholder="Абакан и Хакасия"></label>
-    <label class="control-field field--wide"><span class="control-field__label">Текст над характеристиками</span><textarea class="control-textarea" name="specsDescription" maxlength="2000">${escapeHtml(vehicle?.specsDescription || '')}</textarea></label>
-    <label class="control-field field--wide"><span class="control-field__label">Описание блока «Что можно перевозить»</span><textarea class="control-textarea" name="cargoDescription" maxlength="2000">${escapeHtml(vehicle?.cargoDescription || '')}</textarea></label>
-    <label class="control-field field--wide"><span class="control-field__label">Что можно перевозить</span><textarea class="control-textarea" name="cargoItems" maxlength="3000" placeholder="Каждый пункт с новой строки">${escapeHtml(vehicle?.cargoItems || '')}</textarea></label>
-    <label class="control-field field--wide"><span class="control-field__label">Категории</span><input class="control-input" name="categories" maxlength="400" value="${attr(vehicle?.categories || '')}" placeholder="Переезды, мебель, техника"></label>
+    <label class="control-field"><span class="control-field__label">Пассажирских мест</span><input class="control-input" name="passengerSeats" type="number" min="1" max="20" step="1" value="${attr(vehicle?.passengerSeats ?? '')}" placeholder="Если точно известно"></label>
+    <label class="control-field"><span class="control-field__label">Багаж</span><input class="control-input" name="luggageCapacity" maxlength="500" value="${attr(vehicle?.luggageCapacity || '')}" placeholder="Без выдуманных цифр"></label>
+    <label class="control-field field--wide"><span class="control-field__label">Особенности салона</span><textarea class="control-textarea" name="cabinFeatures" maxlength="1500" placeholder="Расположение кресел, удобство салона">${escapeHtml(vehicle?.cabinFeatures || '')}</textarea></label>
+    <label class="control-field field--wide"><span class="control-field__label">Удобства и оснащение</span><textarea class="control-textarea" name="amenities" maxlength="1500" placeholder="Каждый пункт с новой строки">${escapeHtml(vehicle?.amenities || '')}</textarea></label>
+    <label class="control-field"><span class="control-field__label">Зона работы</span><input class="control-input" name="serviceArea" maxlength="180" value="${attr(vehicle?.serviceArea || '')}" placeholder="Хакасия и соседние регионы"></label>
+    <label class="control-field field--wide"><span class="control-field__label">Описание характеристик</span><textarea class="control-textarea" name="specsDescription" maxlength="2000">${escapeHtml(vehicle?.specsDescription || '')}</textarea></label>
+    <label class="control-field field--wide"><span class="control-field__label">Категории поездок</span><input class="control-input" name="categories" maxlength="400" value="${attr(vehicle?.categories || '')}" placeholder="трансферы,межгород,экскурсии"></label>
 
     <div class="form-section-title field--wide"><span>Фотографии</span></div>
     <div class="control-field field--wide">
@@ -656,20 +636,6 @@ function bindVehicleEditor() {
     if (!slugTouched || !slugInput.value.trim()) slugInput.value = slugifyVehicleName(nameInput.value);
   });
   if (!form.dataset.vehicleId && !slugInput.value) slugInput.value = slugifyVehicleName(nameInput.value);
-
-  const bodyTypePreset = form.elements.bodyTypePreset;
-  const bodyTypeOtherField = form.querySelector('[data-body-type-other]');
-  const bodyTypeOtherInput = form.elements.bodyTypeOther;
-  const syncBodyType = () => {
-    const preset = bodyTypePreset.value;
-    const isOther = preset === 'OTHER';
-    bodyTypeOtherField.hidden = !isOther;
-    bodyTypeOtherInput.required = isOther;
-    form.elements.bodyType.value = isOther ? bodyTypeOtherInput.value.trim() : preset;
-  };
-  bodyTypePreset.addEventListener('change', syncBodyType);
-  bodyTypeOtherInput.addEventListener('input', syncBodyType);
-  syncBodyType();
 
   const partnerFields = form.querySelector('[data-partner-fields]');
   const syncOwnership = (value) => {
@@ -752,8 +718,6 @@ async function submitVehicleForm(event) {
     const body = formValues(form);
     body.images = readVehicleGallery(form);
     delete body.gallery;
-    delete body.bodyTypePreset;
-    delete body.bodyTypeOther;
     const id = form.dataset.vehicleId;
     await api(id ? `/vehicles/${id}` : '/vehicles', { method: id ? 'PATCH' : 'POST', body });
     closeModal();
@@ -769,7 +733,7 @@ async function showVehicle(id) {
   const partner = vehicle.ownershipType === 'PARTNER' && vehicle.carrier
     ? `<div class="detail-item"><span>Принадлежность</span><strong>Партнёрская</strong></div><div class="detail-item"><span>Партнёр</span><strong>${escapeHtml(vehicle.carrier.name)}</strong></div>`
     : `<div class="detail-item"><span>Принадлежность</span><strong>Собственная</strong></div>`;
-  openModal(vehicle.name, `<div class="vehicle-detail"><div class="vehicle-detail__hero">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-truck"></i>'}<div><span>${vehicleStatusBadge(vehicle.status)}</span><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || 'Описание не заполнено')}</p></div></div><div class="detail-grid">${partner}<div class="detail-item"><span>Slug</span><strong>${escapeHtml(vehicle.slug)}</strong></div><div class="detail-item"><span>На сайте</span><strong>${vehicle.published ? 'Да' : 'Нет'}</strong></div><div class="detail-item"><span>Грузоподъёмность</span><strong>${formatCapacity(vehicle.capacityKg)}</strong></div><div class="detail-item"><span>Объём</span><strong>${vehicle.volumeM3 ? `${String(vehicle.volumeM3).replace('.', ',')} м³` : '—'}</strong></div><div class="detail-item"><span>Размер кузова</span><strong>${formatMeters(vehicle.bodyLengthM)} × ${formatMeters(vehicle.bodyWidthM)} × ${formatMeters(vehicle.bodyHeightM)}</strong></div><div class="detail-item"><span>Тип кузова</span><strong>${escapeHtml(vehicle.bodyType || '—')}</strong></div><div class="detail-item"><span>Погрузка</span><strong>${escapeHtml(vehicle.loadingType || '—')}</strong></div><div class="detail-item"><span>Зона работы</span><strong>${escapeHtml(vehicle.serviceArea || '—')}</strong></div><div class="detail-item"><span>Заявок в истории</span><strong>${vehicle._count?.orders || 0}</strong></div></div>${vehicle.images.length ? `<div class="vehicle-gallery-admin">${vehicle.images.map((image) => `<img src="${attr(image.image)}" alt="${attr(image.alt || '')}">`).join('')}</div>` : ''}</div><div class="modal-actions"><button class="control-button" data-edit-vehicle="${vehicle.id}"><i class="ti ti-edit"></i> Редактировать</button><button class="control-button control-button--danger" data-delete-vehicle="${vehicle.id}"><i class="ti ti-trash"></i> Удалить</button></div>`, '<button class="control-button" type="button" data-close-modal>Закрыть</button>', true);
+  openModal(vehicle.name, `<div class="vehicle-detail"><div class="vehicle-detail__hero">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-car"></i>'}<div><span>${vehicleStatusBadge(vehicle.status)}</span><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || 'Описание не заполнено')}</p></div></div><div class="detail-grid">${partner}<div class="detail-item"><span>Slug</span><strong>${escapeHtml(vehicle.slug)}</strong></div><div class="detail-item"><span>На сайте</span><strong>${vehicle.published ? 'Да' : 'Нет'}</strong></div><div class="detail-item"><span>Пассажирских мест</span><strong>${vehicle.passengerSeats ?? '—'}</strong></div><div class="detail-item"><span>Багаж</span><strong>${escapeHtml(vehicle.luggageCapacity || '—')}</strong></div><div class="detail-item"><span>Особенности салона</span><strong>${escapeHtml(vehicle.cabinFeatures || '—')}</strong></div><div class="detail-item"><span>Удобства</span><strong>${escapeHtml(vehicle.amenities || '—')}</strong></div><div class="detail-item"><span>Зона работы</span><strong>${escapeHtml(vehicle.serviceArea || '—')}</strong></div><div class="detail-item"><span>Заявок в истории</span><strong>${vehicle._count?.orders || 0}</strong></div></div>${vehicle.images.length ? `<div class="vehicle-gallery-admin">${vehicle.images.map(image => `<img src="${attr(image.image)}" alt="${attr(image.alt || '')}">`).join('')}</div>` : ''}</div><div class="modal-actions"><button class="control-button" data-edit-vehicle="${vehicle.id}"><i class="ti ti-edit"></i> Редактировать</button><button class="control-button control-button--danger" data-delete-vehicle="${vehicle.id}"><i class="ti ti-trash"></i> Удалить</button></div>`, '<button class="control-button" type="button" data-close-modal>Закрыть</button>', true);
 }
 
 function taskCard(task) {
@@ -910,7 +874,7 @@ async function renderSettings() {
 }
 
 function renderMore() {
-  app.innerHTML = `<div class="page">${pageHeader('Ещё', 'Дополнительные разделы')}<section class="more-grid"><a class="more-link" href="#/fleet"><i class="ti ti-truck"></i><span><b>Автопарк</b><small>Машины и публикация</small></span></a><a class="more-link" href="#/tasks"><i class="ti ti-checklist"></i><span><b>Задачи</b><small>Дела и напоминания</small></span></a><a class="more-link" href="#/finances"><i class="ti ti-wallet"></i><span><b>Финансы</b><small>Доходы и расходы</small></span></a><a class="more-link" href="#/settings"><i class="ti ti-bell"></i><span><b>Уведомления</b><small>Включить Web Push</small></span></a><button class="more-link" data-action="logout"><i class="ti ti-logout"></i><span><b>Выйти</b><small>Завершить сессию</small></span></button></section></div>`;
+  app.innerHTML = `<div class="page">${pageHeader('Ещё', 'Дополнительные разделы')}<section class="more-grid"><a class="more-link" href="#/fleet"><i class="ti ti-car"></i><span><b>Автопарк</b><small>Машины и публикация</small></span></a><a class="more-link" href="#/tasks"><i class="ti ti-checklist"></i><span><b>Задачи</b><small>Дела и напоминания</small></span></a><a class="more-link" href="#/finances"><i class="ti ti-wallet"></i><span><b>Финансы</b><small>Доходы и расходы</small></span></a><a class="more-link" href="#/settings"><i class="ti ti-bell"></i><span><b>Уведомления</b><small>Включить Web Push</small></span></a><button class="more-link" data-action="logout"><i class="ti ti-logout"></i><span><b>Выйти</b><small>Завершить сессию</small></span></button></section></div>`;
 }
 
 function currentRoute() {
@@ -982,7 +946,7 @@ document.addEventListener('click', async (event) => {
   const requestView = event.target.closest('[data-request-view]');
   if (requestView) {
     state.requestView = requestView.dataset.requestView;
-    localStorage.setItem('sg-request-view', state.requestView);
+    localStorage.setItem('t19-request-view', state.requestView);
     document.querySelectorAll('[data-request-view]').forEach((button) => button.classList.toggle('is-active', button === requestView));
     await loadRequests();
     return;
@@ -991,7 +955,7 @@ document.addEventListener('click', async (event) => {
   const taskView = event.target.closest('[data-task-view]');
   if (taskView) {
     state.taskView = taskView.dataset.taskView;
-    localStorage.setItem('sg-task-view', state.taskView);
+    localStorage.setItem('t19-task-view', state.taskView);
     await renderTasks();
     return;
   }

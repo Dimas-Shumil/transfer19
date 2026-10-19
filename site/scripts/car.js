@@ -1,179 +1,154 @@
-"use strict";
+'use strict';
 
 (() => {
-  const revealItems = document.querySelectorAll("[data-car-reveal]");
-  const pathMatch = window.location.pathname.match(/^\/autopark\/([^/]+)\/?$/);
-  let pathSlug = null;
-  if (pathMatch) {
-    try { pathSlug = decodeURIComponent(pathMatch[1]); } catch { pathSlug = pathMatch[1]; }
+  const slug = new URLSearchParams(window.location.search).get('slug') ||
+    window.location.pathname.match(/^\/autopark\/([a-z0-9-]+)\/?$/)?.[1];
+  const localImage = url => typeof url === 'string' && /^\/site\/img\/[a-zA-Z0-9_./-]+$/.test(url) && !url.includes('..');
+  const text = (selector, value) => {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = value ?? '';
+  };
+  const dl = (selector, rows, className) => {
+    const parent = document.querySelector(selector);
+    if (!parent) return;
+    parent.replaceChildren(...rows.filter(([, value]) => value != null && value !== '').map(([key, value]) => {
+      const item = document.createElement('div'); item.className = className;
+      const dt = document.createElement('dt'); dt.textContent = key;
+      const dd = document.createElement('dd'); dd.textContent = String(value);
+      item.append(dt, dd); return item;
+    }));
+  };
+  function unavailable(message) {
+    document.title = 'Автомобиль недоступен — Трансфер19';
+    text('#car-title', 'Автомобиль недоступен');
+    text('[data-car-description]', message);
+    text('[data-car-variant]', 'Выберите другой автомобиль в автопарке');
+    document.querySelector('.car-gallery')?.remove();
+    document.querySelector('.car-specs')?.remove();
+    document.querySelector('.car-cargo')?.remove();
   }
-  const slug = pathSlug || new URLSearchParams(window.location.search).get("slug") || "gazelle-next-4-2";
-
-  const escapeHtml = (value) => String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-  const attr = (value) => escapeHtml(value).replace(/`/g, "&#096;");
-
-  const formatCapacity = (kg) => !kg ? "—" : kg >= 1000 ? `${String(kg / 1000).replace(".", ",")} т` : `${kg} кг`;
-  const formatVolume = (v) => v == null ? "—" : `${String(v).replace(".", ",")} м³`;
-  const formatMeters = (v) => v == null ? "—" : `${String(v).replace(".", ",")} м`;
-  const categoryLabels = { van: "фургон", moving: "переезды", loaders: "грузчики", partner: "партнёрский транспорт" };
-
-  function initReveal() {
-    if (!revealItems.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
-    document.body.classList.add("has-car-motion");
-    const observer = new IntersectionObserver((entries, currentObserver) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        currentObserver.unobserve(entry.target);
-      });
-    }, { rootMargin: "0px 0px -5% 0px", threshold: 0.05 });
-    revealItems.forEach((item) => observer.observe(item));
-  }
-
-  function initGallery() {
-    const mainImage = document.querySelector("[data-car-main-image]");
-    const galleryMain = document.querySelector("[data-car-gallery-main]");
-    const counter = document.querySelector("[data-car-counter]");
-    const previousButton = document.querySelector("[data-car-prev]");
-    const nextButton = document.querySelector("[data-car-next]");
-    const thumbs = [...document.querySelectorAll("[data-car-thumb]")];
-    let currentIndex = Math.max(0, thumbs.findIndex((thumb) => thumb.classList.contains("is-active")));
-
-    const normalize = (index) => thumbs.length ? ((index % thumbs.length) + thumbs.length) % thumbs.length : 0;
-    const show = (index) => {
-      if (!mainImage || !thumbs.length) return;
-      currentIndex = normalize(index);
-      const activeThumb = thumbs[currentIndex];
-      thumbs.forEach((thumb, thumbIndex) => {
-        const active = thumbIndex === currentIndex;
-        thumb.classList.toggle("is-active", active);
-        thumb.setAttribute("aria-pressed", String(active));
-      });
-      mainImage.classList.add("is-changing");
-      window.setTimeout(() => {
-        mainImage.src = activeThumb.dataset.src || mainImage.src;
-        mainImage.alt = activeThumb.dataset.alt || "Фотография автомобиля";
-        if (counter) counter.textContent = `${currentIndex + 1} / ${thumbs.length}`;
-        mainImage.classList.remove("is-changing");
-        activeThumb.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-      }, 150);
-    };
-
-    thumbs.forEach((thumb, index) => thumb.addEventListener("click", () => show(index)));
-    previousButton?.addEventListener("click", () => show(currentIndex - 1));
-    nextButton?.addEventListener("click", () => show(currentIndex + 1));
-
-    if (galleryMain) {
-      let startX = null;
-      let startY = null;
-      galleryMain.addEventListener("touchstart", (event) => {
-        if (event.touches.length !== 1 || thumbs.length <= 1) return;
-        startX = event.touches[0].clientX;
-        startY = event.touches[0].clientY;
-      }, { passive: true });
-      galleryMain.addEventListener("touchend", (event) => {
-        if (startX === null || startY === null || !window.matchMedia("(max-width: 760px)").matches) { startX = startY = null; return; }
-        const deltaX = event.changedTouches[0].clientX - startX;
-        const deltaY = event.changedTouches[0].clientY - startY;
-        startX = startY = null;
-        if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
-        show(deltaX < 0 ? currentIndex + 1 : currentIndex - 1);
-      }, { passive: true });
-      galleryMain.setAttribute("tabindex", "0");
-      galleryMain.addEventListener("keydown", (event) => {
-        if (event.key === "ArrowLeft") { event.preventDefault(); show(currentIndex - 1); }
-        if (event.key === "ArrowRight") { event.preventDefault(); show(currentIndex + 1); }
-      });
-    }
-  }
-
-  function buildGallery(vehicle) {
-    const stage = document.querySelector(".car-gallery__main");
-    const thumbsRoot = document.querySelector(".car-gallery__thumbs");
-    if (!stage || !thumbsRoot) return;
-    let images = Array.isArray(vehicle.images) ? vehicle.images.filter((item) => item.image) : [];
-    if (!images.length && vehicle.previewImage) images = [{ image: vehicle.previewImage, alt: vehicle.name }];
-    if (!images.length) return;
-
-    const mainImage = stage.querySelector("[data-car-main-image]");
-    const counter = stage.querySelector("[data-car-counter]");
-    if (mainImage) {
-      mainImage.src = images[0].image;
-      mainImage.alt = images[0].alt || vehicle.name;
-    }
-    if (counter) counter.textContent = `1 / ${images.length}`;
-    thumbsRoot.innerHTML = images.map((image, index) => `<button class="car-gallery__thumb${index === 0 ? " is-active" : ""}" type="button" data-car-thumb data-src="${attr(image.image)}" data-alt="${attr(image.alt || vehicle.name)}" aria-label="Показать фото ${index + 1}" aria-pressed="${index === 0 ? "true" : "false"}"><img src="${attr(image.image)}" alt="" loading="lazy" decoding="async" draggable="false" /></button>`).join("");
-    document.querySelectorAll("[data-car-prev], [data-car-next]").forEach((button) => { button.hidden = images.length <= 1; });
-  }
-
-  function updateVehicle(vehicle) {
-    document.title = `${vehicle.name} — Свои грузы | Автопарк`;
-    const description = vehicle.shortDescription || vehicle.description || `${vehicle.name} для грузоперевозок по Абакану и Хакасии.`;
-    document.querySelector('meta[name="description"]')?.setAttribute("content", description);
-    const currentCrumb = document.querySelector('.car-breadcrumbs [aria-current="page"]');
-    if (currentCrumb) currentCrumb.textContent = vehicle.name;
-    const title = document.querySelector('#car-title');
-    if (title) title.textContent = vehicle.name;
-    const eyebrow = document.querySelector('.car-card__eyebrow');
-    if (eyebrow) eyebrow.textContent = vehicle.ownershipType === "PARTNER" ? "Автопарк / партнёрская машина" : "Автопарк / своя машина";
-    const desc = document.querySelector('.car-card__description');
-    if (desc) desc.textContent = description;
-
-    const facts = document.querySelector('.car-facts');
-    if (facts) facts.innerHTML = `<div class="car-facts__item"><dt>Грузоподъёмность</dt><dd>${escapeHtml(formatCapacity(vehicle.capacityKg))}</dd></div><div class="car-facts__item"><dt>Объём кузова</dt><dd>${escapeHtml(formatVolume(vehicle.volumeM3))}</dd></div><div class="car-facts__item"><dt>Тип кузова</dt><dd>${escapeHtml(vehicle.bodyType || "—")}</dd></div><div class="car-facts__item"><dt>Зона работы</dt><dd>${escapeHtml(vehicle.serviceArea || "—")}</dd></div>`;
-
-    const primary = document.querySelector('.car-card__button--primary');
-    if (primary) primary.href = `index.html?vehicle=${encodeURIComponent(vehicle.slug)}#calculator`;
-
-    const specs = document.querySelector('.car-spec-table');
-    if (specs) {
-      const categories = String(vehicle.categories || "").split(",").map((item) => categoryLabels[item.trim()] || item.trim()).filter(Boolean).join(", ");
-      specs.innerHTML = [
-        ["Грузоподъёмность", formatCapacity(vehicle.capacityKg)],
-        ["Объём кузова", formatVolume(vehicle.volumeM3)],
-        ["Длина кузова", formatMeters(vehicle.bodyLengthM)],
-        ["Ширина кузова", formatMeters(vehicle.bodyWidthM)],
-        ["Высота кузова", formatMeters(vehicle.bodyHeightM)],
-        ["Тип кузова", vehicle.bodyType || "—"],
-        ["Погрузка", vehicle.loadingType || "—"],
-        ["Подходит для", categories || "Разные задачи"]
-      ].map(([label, value]) => `<div class="car-spec-table__row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("");
-    }
-
-    const specsIntro = document.querySelector('.car-section-heading__text');
-    if (specsIntro) specsIntro.textContent = vehicle.specsDescription || vehicle.description || vehicle.shortDescription || "—";
-    const cargoDescription = document.querySelector('.car-cargo__description');
-    if (cargoDescription) cargoDescription.textContent = vehicle.cargoDescription || vehicle.description || "—";
-    const cargoList = document.querySelector('.car-cargo__list');
-    if (cargoList) {
-      const items = String(vehicle.cargoItems || "").split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
-      cargoList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-      cargoList.hidden = items.length === 0;
-    }
-    const cargoImage = document.querySelector('.car-cargo__visual img');
-    if (cargoImage && vehicle.previewImage) { cargoImage.src = vehicle.previewImage; cargoImage.alt = `${vehicle.name} — Свои грузы`; }
-
-    buildGallery(vehicle);
-  }
-
-  async function loadVehicle() {
+  async function render() {
+    if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return unavailable('Проверьте ссылку или вернитесь в автопарк.');
+    let vehicle;
     try {
-      const response = await fetch(`/api/vehicles/${encodeURIComponent(slug)}`, { headers: { Accept: "application/json" } });
-      const data = await response.json();
-      if (!response.ok || !data.vehicle) throw new Error(data.message || "Машина не найдена");
-      updateVehicle(data.vehicle);
+      const response = await fetch(`/api/vehicles/${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json' } });
+      if (response.status === 404) return unavailable('Этот автомобиль снят с публикации или не найден.');
+      if (!response.ok) throw new Error('API временно недоступен');
+      const payload = await response.json();
+      if (!payload.success || !payload.vehicle) throw new Error('Некорректный ответ API');
+      vehicle = payload.vehicle;
     } catch (error) {
-      console.warn("Vehicle API fallback:", error.message);
-    } finally {
-      initGallery();
-      initReveal();
+      return unavailable('Не удалось получить информацию. Обновите страницу или свяжитесь с нами.');
     }
+    document.title = `${vehicle.name} — автомобиль для трансферов | Трансфер19`;
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = vehicle.shortDescription || `${vehicle.name}: описание и фотографии автомобиля для пассажирских трансферов по Хакасии.`;
+    text('#car-title', vehicle.name);
+    text('[data-car-crumb]', vehicle.name);
+    text('[data-car-variant]', 'Пассажирский минивэн');
+    text('[data-car-description]', vehicle.shortDescription || vehicle.description || 'Трансферы по Хакасии и соседним регионам.');
+    text('[data-car-trips-description]', vehicle.description || vehicle.shortDescription || 'Маршрут, пассажиров и багаж согласуем перед выездом.');
+    const book = document.querySelector('[data-car-book]');
+    if (book) book.href = `/?vehicle=${encodeURIComponent(vehicle.slug)}#booking`;
+    dl('[data-car-facts]', [
+      ['Тип транспорта', 'Минивэн'],
+      ['Пассажирские места', vehicle.passengerSeats == null ? 'Уточняются' : vehicle.passengerSeats],
+      ['Багаж', vehicle.luggageCapacity || 'По запросу'],
+      ['Маршруты', vehicle.serviceArea || 'Уточняются']
+    ], 'car-facts__item');
+    dl('[data-car-specs]', [
+      ['Автомобиль', vehicle.name],
+      ['Количество пассажиров', vehicle.passengerSeats == null ? 'Уточняется при бронировании' : vehicle.passengerSeats],
+      ['Места для багажа', vehicle.luggageCapacity || 'Уточняются'],
+      ['Особенности салона', vehicle.cabinFeatures || 'Уточняются'],
+      ['Удобства', vehicle.amenities || 'Уточняются'],
+      ['Маршруты', vehicle.serviceArea || 'Хакасия и соседние регионы']
+    ], 'car-spec-table__row');
+    const photos = [{ image: vehicle.previewImage, alt: vehicle.name }, ...(vehicle.images || [])]
+      .filter((p, i, arr) => localImage(p.image) && arr.findIndex(x => x.image === p.image) === i);
+    const gallery = document.querySelector('.car-gallery');
+    if (!photos.length) {
+      gallery?.remove();
+    } else {
+      const main = document.querySelector('[data-car-main-image]');
+      const thumbs = document.querySelector('[data-car-thumbs]');
+      const counter = document.querySelector('[data-car-counter]');
+      const stage = document.querySelector('[data-car-gallery-main]');
+      let activeIndex = 0;
+      let token = 0;
+      const buttons = [];
+      function show(n) {
+        const next = (n + photos.length) % photos.length;
+        const picture = photos[next]; const requestId = ++token;
+        const preload = new Image();
+        preload.onload = () => {
+          if (requestId !== token) return;
+          activeIndex = next;
+          if (main) { main.src = picture.image; main.alt = picture.alt || vehicle.name; }
+          if (counter) counter.textContent = `${next + 1} / ${photos.length}`;
+          buttons.forEach((button, index) => {
+            button.classList.toggle('is-active', index === next);
+            button.setAttribute('aria-pressed', String(index === next));
+          });
+        };
+        preload.onerror = () => {};
+        preload.src = picture.image;
+      }
+      photos.forEach((picture, i) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = `car-gallery__thumb${i === 0 ? ' is-active' : ''}`;
+        button.setAttribute('aria-label', `Показать фото ${i + 1}`);
+        button.setAttribute('aria-pressed', String(i === 0));
+        const image = document.createElement('img'); image.src = picture.image;
+        image.alt = ''; image.loading = 'lazy'; image.draggable = false;
+        button.append(image); button.addEventListener('click', () => show(i)); buttons.push(button);
+      });
+      thumbs?.replaceChildren(...buttons);
+      if (main) { main.src = photos[0].image; main.alt = photos[0].alt || vehicle.name; }
+      if (counter) counter.textContent = `1 / ${photos.length}`;
+      document.querySelector('[data-car-disclaimer]')?.remove();
+      document.querySelector('[data-car-prev]')?.addEventListener('click', () => show(activeIndex - 1));
+      document.querySelector('[data-car-next]')?.addEventListener('click', () => show(activeIndex + 1));
+      stage?.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault(); show(activeIndex + (event.key === 'ArrowRight' ? 1 : -1));
+        }
+      });
+      let x = null, y = null;
+      stage?.addEventListener('touchstart', event => {
+        if (event.touches.length === 1) { x = event.touches[0].clientX; y = event.touches[0].clientY; }
+      }, { passive: true });
+      stage?.addEventListener('touchend', event => {
+        if (x == null || y == null) return;
+        const dx = event.changedTouches[0].clientX - x;
+        const dy = event.changedTouches[0].clientY - y;
+        x = y = null;
+        if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.2) show(activeIndex + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+    }
+    const travelList = document.querySelector('[data-car-trips]');
+    if (travelList) {
+      const entries = (vehicle.amenities || '').split(/[\n,;]+/).map(x => x.trim()).filter(Boolean);
+      travelList.replaceChildren(...(entries.length ? entries : ['Индивидуальные трансферы', 'Семейные поездки', 'Междугородние маршруты']).map(value => {
+        const li = document.createElement('li'); li.textContent = value; return li;
+      }));
+    }
+    const visual = document.querySelector('.car-cargo__visual');
+    const otherPhoto = photos[1] || photos[0];
+    if (visual && otherPhoto) {
+      const img = visual.querySelector('img');
+      if (img) { img.src = otherPhoto.image; img.alt = otherPhoto.alt || vehicle.name; }
+      visual.querySelector('.car-cargo__visual-caption')?.remove();
+    } else visual?.remove();
   }
-
-  loadVehicle();
+  render();
+  const reveals = [...document.querySelectorAll('[data-car-reveal]')];
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible'); observer.unobserve(entry.target);
+    }), { threshold: 0.04, rootMargin: '0px 0px -20px 0px' });
+    document.body.classList.add('has-car-motion');
+    reveals.forEach(el => observer.observe(el));
+  }
 })();

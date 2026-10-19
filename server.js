@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
 const prisma = require("./src/lib/prisma");
-const { sitemap, vehicleHtml } = require("./src/services/seo.service");
+const { sitemap, vehicleHtml, fleetHtml, homepageHtml } = require("./src/services/seo.service");
 const { asyncRoute } = require("./src/lib/async-route");
 const { env, validateEnv } = require("./src/config/env");
 const { loadSession } = require("./src/middleware/auth");
@@ -118,35 +118,45 @@ app.get("/site/privacy-policy.html", (_req, res) => res.sendFile(path.join(root,
 app.get("/site/offer.html", (_req, res) => res.sendFile(path.join(root, "site", "offer.html")));
 
 const vehicleSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-// Published vehicles have their own SEO URL and server-rendered HTML.
-app.get('/autopark/:slug', asyncRoute(async (req, res, next) => {
-  const slug = String(req.params.slug || '').trim().toLowerCase();
-  if (!vehicleSlugPattern.test(slug)) return next();
-  const vehicle = await prisma.vehicle.findUnique({ where: { slug }, select: {
-    name: true, slug: true, published: true, shortDescription: true, description: true,
-    previewImage: true, capacityKg: true, volumeM3: true, bodyType: true, serviceArea: true
-  }});
-  if (!vehicle?.published) return res.status(404).send('Машина не найдена');
-  res.set('Cache-Control', 'public, max-age=60');
-  res.type('html').send(vehicleHtml(vehicle));
+const vehicleSeoInclude = { images: { orderBy: { sortOrder: 'asc' } } };
+async function findPublishedVehicle(slug) {
+  if (!vehicleSlugPattern.test(slug)) return null;
+  return prisma.vehicle.findFirst({ where: { slug, published: true }, include: vehicleSeoInclude });
+}
+app.get('/autopark/:slug', asyncRoute(async (req, res) => {
+  const vehicle = await findPublishedVehicle(String(req.params.slug || ''));
+  if (!vehicle) return res.status(404).type('html').send('<h1>Автомобиль не найден</h1><a href="/autopark.html">Вернуться в автопарк</a>');
+  res.set('Cache-Control', 'no-cache');
+  return res.type('html').send(vehicleHtml(vehicle));
+}));
+app.get('/car.html', asyncRoute(async (req, res) => {
+  const slug = String(req.query.slug || '');
+  if (!slug) return res.redirect(302, '/autopark.html');
+  const vehicle = await findPublishedVehicle(slug);
+  if (!vehicle) return res.status(404).type('html').send('<h1>Автомобиль не найден</h1><a href="/autopark.html">Вернуться в автопарк</a>');
+  res.set('Cache-Control', 'no-cache');
+  return res.type('html').send(vehicleHtml(vehicle));
+}));
+app.get('/index.html', (_req, res) => res.redirect(301, '/'));
+app.get('/', asyncRoute(async (_req, res) => {
+  const vehicles = await prisma.vehicle.findMany({
+    where: { published: true }, include: vehicleSeoInclude,
+    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }]
+  });
+  res.set('Cache-Control', 'no-cache');
+  return res.type('html').send(homepageHtml(vehicles));
+}));
+app.get('/autopark.html', asyncRoute(async (_req, res) => {
+  const vehicles = await prisma.vehicle.findMany({
+    where: { published: true },
+    include: vehicleSeoInclude,
+    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }]
+  });
+  res.set('Cache-Control', 'no-cache');
+  return res.type('html').send(fleetHtml(vehicles));
 }));
 
-app.get('/car.html', (req, res) => {
-  const legacySlug = String(req.query.slug || '').trim().toLowerCase();
-  if (legacySlug && vehicleSlugPattern.test(legacySlug)) {
-    return res.redirect(301, `/autopark/${encodeURIComponent(legacySlug)}`);
-  }
-  return res.redirect(301, '/autopark.html');
-});
-
-app.get('/index.html', (_req, res) => res.redirect(301, '/'));
-app.get('/', (_req, res) => res.sendFile(path.join(root, 'public', 'index.html')));
-for (const file of ['about.html', 'autopark.html']) {
-  app.get(`/${file}`, (_req, res) => res.sendFile(path.join(root, file)));
-}
-
-app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(root, 'favicon.ico')));
+app.get('/favicon.ico', (_req, res) => res.redirect(302, '/site/img/favicon.svg'));
 app.get('/robots.txt', (_req, res) => res.sendFile(path.join(root, 'robots.txt')));
 app.get('/sitemap.xml', asyncRoute(async (_req, res) => {
   const vehicles = await prisma.vehicle.findMany({
@@ -221,7 +231,7 @@ app.use(errorHandler);
 
 if (require.main === module) {
   const server = app.listen(env.port, env.host, () => {
-    console.log(`Свои грузы: ${env.appOrigin || `http://localhost:${env.port}`}`);
+    console.log(`Трансфер19: ${env.appOrigin || `http://localhost:${env.port}`}`);
 
 
   });

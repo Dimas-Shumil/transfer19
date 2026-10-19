@@ -677,9 +677,9 @@ h3 {
   color: rgba(21, 36, 51, 0.38);
 }
 .autopark-hero h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(62px, 6vw, 106px);
-  font-weight: 400;
+  font-family: inherit;
+  font-size: clamp(54px, 5.7vw, 92px);
+  font-weight: 800;
   letter-spacing: -0.074em;
   line-height: 0.98;
   margin: 0 0 20px;
@@ -938,11 +938,11 @@ h3 {
   margin: 0 0 7px;
 }
 .vehicle-card h2 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(28px, 2.45vw, 41px);
+  font-family: inherit;
+  font-size: clamp(25px, 2.2vw, 36px);
   line-height: 1.08;
-  letter-spacing: -0.058em;
-  font-weight: 400;
+  letter-spacing: -0.052em;
+  font-weight: 750;
   margin: 0 0 8px;
 }
 .vehicle-card__description {
@@ -1089,9 +1089,9 @@ h3 {
 }
 .autopark-cta h2 {
   margin: 0 0 11px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 400;
-  font-size: clamp(35px, 4.1vw, 66px);
+  font-family: inherit;
+  font-weight: 750;
+  font-size: clamp(34px, 3.7vw, 58px);
   line-height: 1.05;
   letter-spacing: -0.052em;
 }
@@ -1159,97 +1159,6 @@ h3 {
 .autopark-cta__points .icon {
   width: 19px;
   height: 19px;
-}
-
-.autopark-detail {
-  position: fixed;
-  max-width: min(630px, 100vw - 36px);
-  max-height: min(90dvh, 900px);
-  width: 100%;
-  border: 0;
-  border-radius: 20px;
-  padding: 0;
-  background: #f7f7f3;
-  color: #152433;
-  overflow: auto;
-  box-shadow: 0 26px 95px rgba(21, 36, 51, 0.25);
-}
-.autopark-detail::backdrop {
-  background: rgba(16, 29, 39, 0.72);
-  backdrop-filter: blur(6px);
-}
-.autopark-detail__close {
-  position: absolute;
-  z-index: 2;
-  right: 18px;
-  top: 18px;
-  width: 39px;
-  height: 39px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(247, 247, 243, 0.96);
-  color: #152433;
-  font-size: 28px;
-  line-height: 1;
-  transition: background 0.3s;
-}
-.autopark-detail__close:hover {
-  background: #b6a879;
-}
-.autopark-detail__image {
-  width: 100%;
-  aspect-ratio: 1.75;
-  object-fit: cover;
-}
-.autopark-detail__body {
-  padding: clamp(25px, 4vw, 40px);
-}
-.autopark-detail__kicker {
-  color: #606b39;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 750;
-  margin: 0 0 13px;
-}
-.autopark-detail h2 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(33px, 4vw, 49px);
-  font-weight: 400;
-  letter-spacing: -0.05em;
-  margin: 0 0 13px;
-}
-.autopark-detail__body > p:not(.autopark-detail__kicker) {
-  max-width: 520px;
-  font-size: 14px;
-  color: #6c7479;
-  line-height: 1.55;
-}
-.autopark-detail__note {
-  border-left: 2px solid #b6a879;
-  padding-left: 15px;
-}
-.autopark-detail__cta {
-  display: inline-flex;
-  gap: 29px;
-  align-items: center;
-  background: #606b39;
-  border-radius: 80px;
-  padding: 13px 16px 13px 24px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 750;
-  transition: background 0.3s;
-}
-.autopark-detail__cta:hover {
-  background: #4b552d;
-}
-.autopark-detail__cta > .circle-icon {
-  width: 26px;
-  height: 26px;
-}
-.autopark-detail__cta:hover .circle-icon__glyph, .autopark-detail__cta:focus-visible .circle-icon__glyph {
-  transform: rotate(135deg);
 }
 
 @keyframes autopark-hero-appear {
@@ -1565,9 +1474,6 @@ h3 {
   }
   .vehicle-card__features span {
     font-size: 9px;
-  }
-  .autopark-detail__body {
-    padding: 25px 21px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

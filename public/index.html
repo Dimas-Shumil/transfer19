@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#f7f7f3" />
     <meta
       name="description"
-      content="МАРШРУТ — трансферы и поездки с водителем по Хакасии. Выберите направление и автомобиль и оставьте предварительный запрос на поездку."
+      content="Трансфер19 — трансферы и поездки с водителем по Хакасии. Выберите направление и автомобиль и оставьте предварительный запрос на поездку."
     />
-    <title>МАРШРУТ — комфорт в каждой поездке по Хакасии</title>
+    <title>Трансфер19 — комфорт в каждой поездке по Хакасии</title>
     <link rel="icon" type="image/svg+xml" href="/site/img/favicon.svg" />
     <link
       rel="preload"
@@ -68,7 +68,7 @@
         aria-label="Предварительный запрос на трансфер"
       >
         <form class="booking__form" data-booking-form>
-          <label class="booking__field">
+          <div class="booking__field">
             <svg class="icon" aria-hidden="true">
               <use href="/site/img/icons.svg#pin"></use>
             </svg>
@@ -84,8 +84,8 @@
                 <option value="Другое место">Другое место</option>
               </select></span
             >
-          </label>
-          <label class="booking__field">
+          </div>
+          <div class="booking__field">
             <svg class="icon" aria-hidden="true">
               <use href="/site/img/icons.svg#pin"></use>
             </svg>
@@ -102,7 +102,7 @@
                 <option value="Другое место">Другое место</option>
               </select></span
             >
-          </label>
+          </div>
           <label class="booking__field">
             <svg class="icon" aria-hidden="true">
               <use href="/site/img/icons.svg#calendar"></use>
@@ -116,7 +116,7 @@
                 aria-label="Выберите дату поездки"
             /></span>
           </label>
-          <label class="booking__field">
+          <div class="booking__field">
             <svg class="icon" aria-hidden="true">
               <use href="/site/img/icons.svg#people"></use>
             </svg>
@@ -133,7 +133,7 @@
                 <option value="8">8 пассажиров</option>
               </select></span
             >
-          </label>
+          </div>
           <button class="booking__submit" type="submit">
             Узнать стоимость
           </button>
@@ -560,7 +560,7 @@
               <span class="trip-formats__photo-label" data-trip-photo-label>
                 01 / МЕЖГОРОД
               </span>
-              <span class="trip-formats__photo-sign" aria-hidden="true">МАРШРУТ</span>
+              <span class="trip-formats__photo-sign" aria-hidden="true">Трансфер19</span>
             </div>
             <div class="trip-formats__feature-foot">
               <div class="trip-formats__feature-text" aria-live="polite" aria-atomic="true">
@@ -681,15 +681,23 @@
             maxlength="25"
             placeholder="+7 (999) 999-99-99"
         /></label>
-        <button type="submit" class="button button--dark">Продолжить</button>
+        <label>Время подачи
+          <input type="time" name="time" required />
+        </label>
+        <label>Багаж и пожелания
+          <textarea name="luggage" maxlength="500" rows="2" placeholder="Например: два чемодана, детское кресло"></textarea>
+        </label>
+        <div class="lead-dialog__honeypot" aria-hidden="true" hidden>
+          <label>Ваш сайт <input name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+        <button type="submit" class="button button--dark">Отправить заявку</button>
         <p
           class="lead-dialog__hint"
           role="status"
           aria-live="polite"
           data-contact-status
         >
-          Демонстрационная версия: отправка заявок будет подключена на этапе
-          backend. Данные никуда не передаются.
+          После отправки свяжемся с вами, уточним детали и стоимость поездки.
         </p>
       </form>
     </dialog>

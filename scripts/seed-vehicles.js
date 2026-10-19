@@ -1,111 +1,35 @@
-const prisma = require("../src/lib/prisma");
+"use strict";
+const fs = require('node:fs');
+const path = require('node:path');
+const prisma = require('../src/lib/prisma');
+
+const cars = [
+  { slug: 'stepwgn-white', name: 'Honda Stepwgn — белый', shortDescription: 'Просторный минивэн для семейных, индивидуальных и междугородних поездок по Хакасии.', image: 'autopark-stepwgn-white.webp' },
+  { slug: 'stepwgn-dark', name: 'Honda Stepwgn — тёмный', shortDescription: 'Вместительный минивэн для поездок по городу и междугородних маршрутов.', image: 'autopark-stepwgn-dark.webp' },
+  { slug: 'voxy-white', name: 'Toyota Voxy — белый', shortDescription: 'Минивэн для индивидуальных трансферов, отдыха и поездок по Хакасии.', image: 'autopark-voxy-white.webp' }
+];
 
 async function main() {
-  const vehicles = [
-    {
-      data: {
-        slug: "gazelle-next-4-2",
-        name: "Газель NEXT 4.2 м",
-        shortDescription: "Для переездов, мебели, техники и бытовых грузов.",
-        description: "Универсальный закрытый фургон для квартирных и офисных переездов, перевозки мебели, бытовой техники, коробок и других грузов по Абакану и Хакасии.",
-        specsDescription: "Размер кузова подходит для большинства городских перевозок и переездов, а закрытый фургон защищает вещи от осадков и грязи.",
-        cargoDescription: "Газель NEXT подойдёт для частных переездов, доставки покупок, перевозки оборудования и регулярных задач бизнеса.",
-        cargoItems: "Мебель и предметы интерьера\nБытовая техника\nКоробки и личные вещи\nСтройматериалы\nОборудование и инструменты\nТовары для бизнеса",
-        serviceArea: "Абакан и Хакасия",
-        previewImage: "/site/img/fleet-next.webp",
-        capacityKg: 1500,
-        volumeM3: 18,
-        bodyLengthM: 4.2,
-        bodyWidthM: 2.1,
-        bodyHeightM: 2.1,
-        bodyType: "Фургон",
-        loadingType: "Задняя",
-        categories: "переезды,мебель,техника",
-        ownershipType: "OWN",
-        status: "AVAILABLE",
-        published: true,
-        sortOrder: 10
-      },
-      images: [
-        ["/site/img/car-next-main.webp", "Газель NEXT 4.2 м компании Свои грузы"],
-        ["/site/img/car-next-side.webp", "Газель NEXT, вид сбоку"],
-        ["/site/img/car-next-night.webp", "Газель NEXT в вечернее время"],
-        ["/site/img/car-next-brand.webp", "Фирменная графика Свои грузы на кузове автомобиля"]
-      ]
-    },
-    {
-      data: {
-        slug: "tent-van",
-        name: "Тентованный фургон",
-        shortDescription: "Для габаритных и нестандартных грузов с защитой от непогоды.",
-        description: "Тентованный автомобиль для объёмных грузов, коммерческих перевозок и задач, где важна удобная погрузка.",
-        specsDescription: "Характеристики автомобиля заполняются и редактируются из панели управления.",
-        cargoDescription: "Подходит для объёмных грузов и коммерческих перевозок.",
-        cargoItems: "Габаритные грузы\nСтройматериалы\nОборудование\nТовары для бизнеса",
-        serviceArea: "Абакан и Хакасия",
-        previewImage: "/site/img/fleet-tent.webp",
-        capacityKg: 3000,
-        volumeM3: 28,
-        bodyLengthM: 6.2,
-        bodyType: "Тент",
-        categories: "габаритные грузы,бизнес",
-        ownershipType: "OWN",
-        status: "AVAILABLE",
-        published: true,
-        sortOrder: 20
-      },
-      images: [["/site/img/fleet-tent.webp", "Тентованный фургон компании Свои грузы"]]
-    },
-    {
-      data: {
-        slug: "board-gazelle",
-        name: "Бортовая Газель",
-        shortDescription: "Для стройматериалов, техники, длинномеров и нестандартных грузов.",
-        description: "Бортовой автомобиль для стройматериалов, оборудования, длинномерных и нестандартных грузов.",
-        specsDescription: "Открытый борт удобен для боковой и верхней погрузки нестандартных грузов.",
-        cargoDescription: "Подходит для строительных материалов, оборудования и длинномерных грузов.",
-        cargoItems: "Стройматериалы\nОборудование\nИнструменты\nДлинномерные грузы",
-        serviceArea: "Абакан и Хакасия",
-        previewImage: "/site/img/fleet-board.webp",
-        capacityKg: 1500,
-        bodyLengthM: 4.2,
-        bodyType: "Бортовой",
-        loadingType: "Боковая / верхняя",
-        categories: "стройматериалы,оборудование",
-        ownershipType: "OWN",
-        status: "AVAILABLE",
-        published: true,
-        sortOrder: 30
-      },
-      images: [["/site/img/fleet-board.webp", "Бортовая Газель компании Свои грузы"]]
-    }
-  ];
-
-  for (const item of vehicles) {
-    const vehicle = await prisma.vehicle.upsert({
-      where: { slug: item.data.slug },
-      update: item.data,
-      create: item.data
-    });
-    await prisma.vehicleImage.deleteMany({ where: { vehicleId: vehicle.id } });
-    if (item.images.length) {
-      await prisma.vehicleImage.createMany({
-        data: item.images.map(([image, alt], index) => ({
-          vehicleId: vehicle.id,
-          image,
-          alt,
-          sortOrder: index * 10
-        }))
-      });
-    }
+  if (!process.argv.includes('--confirm-empty-transfer19')) {
+    throw new Error('Это вспомогательный скрипт. Для запуска нужен флаг --confirm-empty-transfer19 и отдельное согласование.');
   }
-
-  console.log("Автопарк: 3 машины добавлены/обновлены.");
+  const count = await prisma.vehicle.count();
+  if (count !== 0) throw new Error('В базе уже есть автомобили; скрипт отказывается менять или удалять их.');
+  for (const [index, car] of cars.entries()) {
+    const photoPath = path.join(__dirname, '..', 'site', 'img', car.image);
+    const hasPhoto = fs.existsSync(photoPath);
+    const image = hasPhoto ? `/site/img/${car.image}` : null;
+    await prisma.vehicle.create({
+      data: {
+        slug: car.slug, name: car.name, shortDescription: car.shortDescription,
+        description: car.shortDescription, serviceArea: 'Хакасия и соседние регионы',
+        published: true, sortOrder: (index + 1) * 10,
+        // Seats, luggage specs, amenities are intentionally not invented.
+        previewImage: image,
+        images: image ? { create: [{ image, alt: car.name, sortOrder: 0 }] } : undefined
+      }
+    });
+  }
+  console.info('Создано 3 автомобиля. Проверьте галереи и заполните подтверждённые характеристики в CRM.');
 }
-
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+main().catch(error => { console.error(error.message); process.exitCode = 1; }).finally(() => prisma.$disconnect());

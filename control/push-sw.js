@@ -6,11 +6,11 @@ self.addEventListener("push", (event) => {
   const path = String(payload.url || "");
   const safePath = /^\/control\/app\.html(?:\?openOrder=\d+)?#\/requests(?:\?order=\d+)?$/.test(path)
     ? path : "/control/app.html#/requests";
-  event.waitUntil(self.registration.showNotification(String(payload.title || "СВОИ ГРУЗЫ").slice(0, 120), {
+  event.waitUntil(self.registration.showNotification(String(payload.title || "Трансфер19").slice(0, 120), {
     body: String(payload.body || "Новая заявка").slice(0, 240),
     icon: "/site/img/push-icon-192.png",
     badge: "/site/img/push-icon-192.png",
-    tag: String(payload.tag || "sg-order").slice(0, 80),
+    tag: String(payload.tag || "t19-order").slice(0, 80),
     renotify: true,
     data: { url: safePath },
   }));

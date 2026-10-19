@@ -6,29 +6,11 @@ const { safeSlug } = require("../lib/validation");
 const router = express.Router();
 
 const publicSelect = {
-  slug: true,
-  name: true,
-  shortDescription: true,
-  description: true,
-  specsDescription: true,
-  cargoDescription: true,
-  cargoItems: true,
-  serviceArea: true,
-  previewImage: true,
-  capacityKg: true,
-  volumeM3: true,
-  bodyLengthM: true,
-  bodyWidthM: true,
-  bodyHeightM: true,
-  bodyType: true,
-  loadingType: true,
-  categories: true,
-  ownershipType: true,
-  status: true,
-  images: {
-    select: { image: true, alt: true, sortOrder: true },
-    orderBy: { sortOrder: "asc" }
-  }
+  slug: true, name: true, shortDescription: true, description: true,
+  specsDescription: true, serviceArea: true, previewImage: true,
+  passengerSeats: true, luggageCapacity: true, cabinFeatures: true, amenities: true,
+  categories: true, status: true,
+  images: { select: { image: true, alt: true, sortOrder: true }, orderBy: { sortOrder: "asc" } }
 };
 
 router.get("/", asyncRoute(async (req, res) => {

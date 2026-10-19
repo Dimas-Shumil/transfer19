@@ -71,7 +71,7 @@ router.get('/export.csv', asyncRoute(async (req, res) => {
   });
   const safe = (value) => `"${String(value ?? '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`;
   const rows = [
-    ['Номер', 'Дата', 'Клиент', 'Телефон', 'Откуда', 'Куда', 'Груз', 'Автомобиль', 'Стоимость', 'Оплачено', 'Источник'],
+    ['Номер', 'Дата', 'Клиент', 'Телефон', 'Откуда', 'Куда', 'Пассажиры', 'Багаж', 'Автомобиль', 'Стоимость', 'Оплачено', 'Источник'],
     ...orders.map((order) => [
       order.id,
       order.completedAt?.toISOString() || '',
@@ -79,7 +79,8 @@ router.get('/export.csv', asyncRoute(async (req, res) => {
       order.client.phone || '',
       order.pickupAddress || '',
       order.destinationAddress || '',
-      order.cargoType || '',
+      order.passengerCount ?? '',
+      order.luggageDetails || '',
       order.vehicleRecord?.name || order.vehicle || '',
       (order.amountCents || 0) / 100,
       (order.paidAmountCents || 0) / 100,
@@ -89,7 +90,7 @@ router.get('/export.csv', asyncRoute(async (req, res) => {
   const csv = `\uFEFF${rows.map((row) => row.map(safe).join(';')).join('\r\n')}`;
   res.set({
     'Content-Type': 'text/csv; charset=utf-8',
-    'Content-Disposition': `attachment; filename="svoi-gruzi-${from.toISOString().slice(0, 10)}-${to.toISOString().slice(0, 10)}.csv"`,
+    'Content-Disposition': `attachment; filename="transfer19-${from.toISOString().slice(0, 10)}-${to.toISOString().slice(0, 10)}.csv"`,
     'Cache-Control': 'no-store',
   });
   res.send(csv);

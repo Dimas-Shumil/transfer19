@@ -16,7 +16,7 @@ function makePayload({ title, body, id, test = false }) {
   return JSON.stringify({
     title, body,
     url: test ? "/control/app.html#/requests" : `/control/app.html?openOrder=${id}#/requests?order=${id}`,
-    tag: test ? `sg-push-test-${Date.now()}` : `sg-order-${id}`,
+    tag: test ? `t19-push-test-${Date.now()}` : `t19-order-${id}`,
   });
 }
 
@@ -34,7 +34,7 @@ async function deliver(subscriptions, payload, ttl = 3600) {
       if (error.statusCode === 404 || error.statusCode === 410) {
         await prisma.pushSubscription.deleteMany({ where: { id: sub.id } }).catch(() => {});
       } else {
-        console.error("Web Push СВОИ ГРУЗЫ:", String(error.message || error).slice(0, 240));
+        console.error("Web Push Трансфер19:", String(error.message || error).slice(0, 240));
       }
       return 0;
     }
@@ -51,11 +51,11 @@ async function sendNewOrderNotification(order) {
     where: { user: { isActive: true, role: "OWNER" } },
     select: { id: true, endpoint: true, p256dh: true, auth: true },
   });
-  const cargo = String(order.cargoType || "Грузоперевозка").slice(0, 70);
+  const passengers = order.passengerCount ? `${order.passengerCount} пассаж.` : 'Число пассажиров уточняется';
   // No phone or route/address in system lock-screen notifications.
   return deliver(subs, makePayload({
-    title: `СВОИ ГРУЗЫ · Новая заявка №${order.id}`,
-    body: `${cargo}. Откройте заявку в панели управления.`,
+    title: `Трансфер19 · Новая заявка №${order.id}`,
+    body: `${passengers}. Откройте заявку в панели управления.`,
     id: order.id,
   }));
 }
@@ -66,7 +66,7 @@ async function sendTestNotification(userId) {
     where: { userId }, select: { id: true, endpoint: true, p256dh: true, auth: true },
   });
   return deliver(subs, makePayload({
-    title: "СВОИ ГРУЗЫ · Проверка Web Push",
+    title: "Трансфер19 · Проверка Web Push",
     body: "Уведомления настроены. Новые заявки будут появляться здесь.",
     test: true,
   }), 300);

@@ -98,6 +98,6 @@ test("служебные файлы не раздаются как static", asyn
 test("валидация имени и slug отклоняет мусор", () => {
   assert.equal(personName("Павел"), "Павел");
   assert.throws(() => personName("П\nавел"));
-  assert.equal(safeSlug("gazelle-next-4-2"), "gazelle-next-4-2");
+  assert.equal(safeSlug("stepwgn-white"), "stepwgn-white");
   assert.throws(() => safeSlug("../../.env"));
 });

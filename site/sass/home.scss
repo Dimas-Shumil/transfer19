@@ -264,6 +264,107 @@
   margin: 9px 14px 0;
 }
 
+// Прогрессивное улучшение нативных select. Без JS остаётся стандартное меню.
+.booking__field--has-choice {
+  position: relative;
+
+  &.is-choice-open { z-index: 12; background: #f2f3ef; }
+  &.is-choice-invalid { box-shadow: inset 0 0 0 1px #b66a57; }
+
+  .booking__field-content > select {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    opacity: 0;
+    clip-path: inset(50%);
+    pointer-events: none;
+  }
+}
+.booking__choice {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.booking__choice-trigger {
+  display: block;
+  position: relative;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: $ink;
+  text-align: left;
+  padding: 0 20px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 19px;
+  transition: color 0.25s;
+
+  &.is-placeholder { color: #90979a; }
+  &::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 5px;
+    width: 9px;
+    height: 9px;
+    border-right: 1.8px solid currentColor;
+    border-bottom: 1.8px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.3s $ease;
+  }
+  &[aria-expanded='true']::after { transform: translateY(4px) rotate(225deg); }
+  &:focus-visible { outline-offset: 5px; border-radius: 3px; }
+}
+.booking__choice-list {
+  position: absolute;
+  z-index: 35;
+  top: calc(100% + 19px);
+  left: -13px;
+  width: max(100%, 220px);
+  max-width: calc(100vw - 32px);
+  max-height: min(340px, 56vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 7px;
+  border: 1px solid rgba($ink, 0.09);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba($ink, 0.16), 0 3px 12px rgba($ink, 0.055);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.985);
+  transform-origin: top left;
+  transition: opacity 0.23s, transform 0.29s $ease, visibility 0.23s;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($olive, 0.4) transparent;
+
+  &.is-open { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+  &.is-above { top: auto; bottom: calc(100% + 19px); transform-origin: bottom left; }
+}
+.booking__choice-option {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 560;
+  color: $ink;
+  line-height: 1.35;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+
+  &.is-active { background: #f1f3eb; color: $ink; }
+  &[aria-selected='true'] { background: $olive-dark; color: #fff; font-weight: 700; }
+  &[aria-selected='true'].is-active { background: #505b31; }
+}
+
 // Fleet.
 .fleet {
   padding-top: 65px;
@@ -384,14 +485,34 @@
 .car-card__select:hover .circle-icon__glyph {
   transform: rotate(135deg);
 }
+// Сохраняем компактную редакционную карточку первоначального макета.
+.car-card__image::after {
+  content: '';
+  position: absolute;
+  inset: 66% 0 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba($ink, 0.12), transparent);
+}
+.car-card__select .circle-icon__glyph { transform: none; }
+.car-card__select:hover .circle-icon__glyph { transform: rotate(90deg); }
+.car-card__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  color: $ink-muted;
+  text-align: center;
+  font-size: 12px;
+}
 .car-card__caption {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   gap: 5px;
-  min-height: 82px;
-  padding: 13px 17px 16px;
+  min-height: 84px;
+  padding: 15px 17px 17px;
 }
 .car-card__caption h3 {
   font-size: 18px;
@@ -404,6 +525,10 @@
   color: $ink-muted;
   margin: 0;
   line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 // Two editorial blocks: vehicle interior + local travel destinations.
@@ -695,7 +820,8 @@
   font-weight: 700;
   color: $ink;
 }
-.lead-dialog input {
+.lead-dialog input,
+.lead-dialog textarea {
   border: 1px solid $line;
   background: #fcfcfa;
   border-radius: 10px;
@@ -705,7 +831,8 @@
   font-size: 15px;
   color: $ink;
 }
-.lead-dialog input:focus {
+.lead-dialog input:focus,
+.lead-dialog textarea:focus {
   border-color: $olive;
 }
 .lead-dialog__hint {
@@ -957,6 +1084,11 @@
   .booking input {
     font-size: 12px;
   }
+  .booking__choice-trigger { font-size: 12px; }
+  .booking__choice-list { left: -10px; top: calc(100% + 15px); }
+  .booking__choice-list.is-above { bottom: calc(100% + 15px); }
+  .booking__field:nth-child(2) .booking__choice-list,
+  .booking__field:nth-child(4) .booking__choice-list { left: auto; right: -10px; }
   .booking__field-content > span {
     font-size: 10px;
   }
@@ -1783,3 +1915,8 @@
     transition: none;
   }
 }
+
+// Динамический автопарк: отсутствие фотографии и статус занятости.
+.car-card__placeholder { display: grid; place-items: center; width: 100%; height: 100%; padding: 24px; color: #526168; font-size: 13px; text-align: center; }
+.car-card__select:disabled { opacity: .45; cursor: not-allowed; }
+.fleet__empty { grid-column: 1 / -1; padding: 32px; background: #fff; border-radius: 14px; color: #526168; }

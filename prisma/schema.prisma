@@ -148,9 +148,14 @@ model Vehicle {
   shortDescription String?
   description     String?
   specsDescription String?
+  // Legacy-only cargo fields are retained for non-destructive migration.
   cargoDescription String?
   cargoItems       String?
   serviceArea      String?
+  passengerSeats   Int?
+  luggageCapacity  String?
+  cabinFeatures    String?
+  amenities        String?
   previewImage    String?
   capacityKg      Int?
   volumeM3        Float?
@@ -197,7 +202,10 @@ model Order {
   clientId           Int
   pickupAddress      String?
   destinationAddress String?
+  // Legacy cargo fields retained during gradual migration; not exposed in Transfer19 UI.
   cargoType          String?
+  passengerCount     Int?
+  luggageDetails     String?
   loadersRequired    Boolean?
   vehicle            String?
   vehicleId          Int?

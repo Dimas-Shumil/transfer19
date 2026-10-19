@@ -1,10 +1,10 @@
 {
-  "name": "СВОИ ГРУЗЫ — управление",
-  "short_name": "СВОИ ГРУЗЫ",
+  "name": "Трансфер19 — управление",
+  "short_name": "Трансфер19",
   "start_url": "/control/app.html#/dashboard",
   "display": "standalone",
-  "background_color": "#101619",
-  "theme_color": "#101619",
+  "background_color": "#172b39",
+  "theme_color": "#172b39",
   "lang": "ru",
   "icons": [
     {

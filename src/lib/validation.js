@@ -73,6 +73,34 @@ function publicServiceDate(value) {
   return date;
 }
 
+// A local wall-clock date/time for departure in Khakassia (UTC+07:00).
+function publicTransferDate(dateValue, timeValue) {
+  const day = String(dateValue ?? '').trim();
+  const hour = String(timeValue ?? '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new HttpError(400, 'Дата поездки указана неверно', 'VALIDATION_ERROR');
+  // Check calendar validity before Date normalizes invalid dates.
+  const [year, month, date] = day.split('-').map(Number);
+  if (year < 2020 || year > 2100 || month < 1 || month > 12 || date < 1 || date > new Date(Date.UTC(year, month, 0)).getUTCDate()) {
+    throw new HttpError(400, 'Дата поездки указана неверно', 'VALIDATION_ERROR');
+  }
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(hour)) throw new HttpError(400, 'Укажите время подачи в формате ЧЧ:ММ', 'VALIDATION_ERROR');
+  const departure = new Date(`${day}T${hour}:00+07:00`);
+  if (departure.getTime() < Date.now()) throw new HttpError(400, 'Дата и время поездки уже прошли', 'VALIDATION_ERROR');
+  return departure;
+}
+
+function passengerCount(value, { required = false } = {}) {
+  if (value === '' || value == null) {
+    if (required) throw new HttpError(400, 'Укажите количество пассажиров', 'VALIDATION_ERROR');
+    return null;
+  }
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1 || number > 20) {
+    throw new HttpError(400, 'Количество пассажиров: от 1 до 20', 'VALIDATION_ERROR');
+  }
+  return number;
+}
+
 function moneyToCents(value, field, required = false) {
   if (value === '' || value == null) {
     if (required) throw new HttpError(400, `Заполните поле «${field}»`, 'VALIDATION_ERROR');
@@ -139,6 +167,8 @@ module.exports = {
   enumValue,
   optionalDate,
   publicServiceDate,
+  publicTransferDate,
+  passengerCount,
   moneyToCents,
   normalizePhone,
   formatPhone,

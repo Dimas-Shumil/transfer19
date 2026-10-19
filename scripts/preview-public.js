@@ -13,6 +13,7 @@ http.createServer((req,res) => {
   catch { res.writeHead(400); res.end(); return; }
   let relative = "";
   if (pathname === "/" || pathname === "/index.html") relative = "public/index.html";
+  else if (/^\/(autopark|car)\.html$/.test(pathname)) relative = `public/${pathname.slice(1)}`;
   else if (/^\/components\/(header|footer)\.html$/.test(pathname)) relative = pathname.slice(1);
   else if (/^\/site\/(css|scripts|img)\/[\w.-]+$/.test(pathname)) relative = pathname.slice(1);
   else { res.writeHead(404, {"Content-Type":"text/plain; charset=utf-8"}); res.end("Страница пока не создана"); return; }

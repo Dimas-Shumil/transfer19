@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
-Allow: /api/vehicles
 Disallow: /api/
 Disallow: /control/
 Disallow: /site/sass/
-Sitemap: https://svoi-perevozki.ru/sitemap.xml
+# Sitemap URL will be set after the production domain is confirmed.

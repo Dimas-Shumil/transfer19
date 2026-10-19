@@ -7,6 +7,7 @@ const {
   moneyToCents,
   normalizeSearch,
   positiveId,
+  passengerCount,
 } = require('../lib/validation');
 const { upsertClient } = require('./client.service');
 
@@ -14,12 +15,6 @@ const TYPES = new Set(['REGULAR', 'SCHEDULED']);
 const STATUSES = new Set(['NEW', 'PLANNED', 'COMPLETED', 'CANCELLED']);
 const PAYMENT_STATUSES = new Set(['UNPAID', 'PARTIAL', 'PAID']);
 const PAYMENT_METHODS = new Set(['CASH', 'TRANSFER', 'CARD', 'OTHER']);
-
-function booleanOrNull(value) {
-  if (value === true || value === 'true' || value === 'yes' || value === '1') return true;
-  if (value === false || value === 'false' || value === 'no' || value === '0') return false;
-  return null;
-}
 
 function paymentData(body, amountCents) {
   if (amountCents == null) return { paymentStatus: 'UNPAID', paymentMethod: null, paidAmountCents: 0 };
@@ -39,14 +34,15 @@ function paymentData(body, amountCents) {
   return { paymentStatus, paymentMethod, paidAmountCents };
 }
 
-function orderSearchText({ client, pickupAddress, destinationAddress, cargoType, vehicle, source, notes }) {
+function orderSearchText({ client, pickupAddress, destinationAddress, passengerCount: seats, luggageDetails, vehicle, source, notes }) {
   return normalizeSearch(
     client?.name,
     client?.phone,
     client?.phoneNormalized,
     pickupAddress,
     destinationAddress,
-    cargoType,
+    seats,
+    luggageDetails,
     vehicle,
     source,
     notes,
@@ -72,19 +68,27 @@ async function createControlOrder(body, userId) {
   const pickupAddress = text(body.pickupAddress, 'Откуда забрать', 300);
   const destinationAddress = text(body.destinationAddress, 'Куда отвезти', 300);
   const clientName = text(body.clientName, 'Имя клиента', 120, true);
-  const cargoType = text(body.cargoType, 'Груз', 120);
+  const count = passengerCount(body.passengerCount);
+  const luggageDetails = text(body.luggageDetails, 'Багаж', 500);
   const notes = text(body.notes, 'Комментарий', 2000);
   const source = text(body.source, 'Источник', 80) || 'Другое';
-  const amountCents = moneyToCents(body.amount, 'Стоимость', true);
+  const amountCents = moneyToCents(body.amount, 'Стоимость');
+  if (status === 'COMPLETED' && amountCents == null) {
+    throw new HttpError(400, 'Перед завершением заявки укажите стоимость поездки', 'VALIDATION_ERROR');
+  }
   const scheduledAt = type === 'SCHEDULED' ? optionalDate(body.scheduledAt, 'Дата и время') : null;
   if (type === 'SCHEDULED' && !scheduledAt) {
     throw new HttpError(400, 'Укажите дату и время запланированной заявки', 'VALIDATION_ERROR');
   }
-  const loadersRequired = booleanOrNull(body.loadersRequired);
+
 
   return prisma.$transaction(async (tx) => {
     const vehicleData = await resolveVehicle(tx, body.vehicleId, body.vehicle);
     const vehicleName = vehicleData?.vehicle || text(body.vehicle, 'Автомобиль', 180);
+    if (vehicleData?.vehicleId && count != null) {
+      const record = await tx.vehicle.findUnique({ where: { id: vehicleData.vehicleId }, select: { passengerSeats: true } });
+      if (record?.passengerSeats != null && count > record.passengerSeats) throw new HttpError(400, 'Пассажиров больше, чем заявленных мест в автомобиле', 'VALIDATION_ERROR');
+    }
     const client = await upsertClient(tx, {
       phone: body.phone,
       name: clientName,
@@ -101,8 +105,8 @@ async function createControlOrder(body, userId) {
         clientId: client.id,
         pickupAddress,
         destinationAddress,
-        cargoType,
-        loadersRequired,
+        passengerCount: count,
+        luggageDetails,
         vehicle: vehicleName,
         vehicleId: vehicleData?.vehicleId || null,
         amountCents,
@@ -118,7 +122,8 @@ async function createControlOrder(body, userId) {
           client,
           pickupAddress,
           destinationAddress,
-          cargoType,
+          passengerCount: count,
+          luggageDetails,
           vehicle: vehicleName,
           source,
           notes,
@@ -141,7 +146,8 @@ async function updateOrder(id, body) {
     const status = body.status !== undefined ? enumValue(body.status, STATUSES, 'Статус') : existing.status;
     const pickupAddress = body.pickupAddress !== undefined ? text(body.pickupAddress, 'Откуда забрать', 300) : existing.pickupAddress;
     const destinationAddress = body.destinationAddress !== undefined ? text(body.destinationAddress, 'Куда отвезти', 300) : existing.destinationAddress;
-    const cargoType = body.cargoType !== undefined ? text(body.cargoType, 'Груз', 120) : existing.cargoType;
+    const count = body.passengerCount !== undefined ? passengerCount(body.passengerCount) : existing.passengerCount;
+    const luggageDetails = body.luggageDetails !== undefined ? text(body.luggageDetails, 'Багаж', 500) : existing.luggageDetails;
     const notes = body.notes !== undefined ? text(body.notes, 'Комментарий', 2000) : existing.notes;
     const source = body.source !== undefined ? text(body.source, 'Источник', 80, true) : existing.source;
     const scheduledAt = type === 'SCHEDULED'
@@ -150,9 +156,6 @@ async function updateOrder(id, body) {
     if (type === 'SCHEDULED' && !scheduledAt) {
       throw new HttpError(400, 'Укажите дату и время запланированной заявки', 'VALIDATION_ERROR');
     }
-    const loadersRequired = body.loadersRequired !== undefined
-      ? booleanOrNull(body.loadersRequired)
-      : existing.loadersRequired;
 
     let vehicleId = existing.vehicleId;
     let vehicle = existing.vehicle;
@@ -166,6 +169,10 @@ async function updateOrder(id, body) {
       }
     }
 
+    if (vehicleId && count != null) {
+      const record = await tx.vehicle.findUnique({ where: { id: vehicleId }, select: { passengerSeats: true } });
+      if (record?.passengerSeats != null && count > record.passengerSeats) throw new HttpError(400, 'Пассажиров больше, чем заявленных мест в автомобиле', 'VALIDATION_ERROR');
+    }
     const clientName = body.clientName !== undefined
       ? text(body.clientName, 'Имя клиента', 120, true)
       : existing.client.name;
@@ -179,10 +186,10 @@ async function updateOrder(id, body) {
       : existing.client;
 
     const amountCents = body.amount !== undefined
-      ? moneyToCents(body.amount, 'Стоимость', true)
+      ? moneyToCents(body.amount, 'Стоимость')
       : existing.amountCents;
     if (status === 'COMPLETED' && amountCents == null) {
-      throw new HttpError(400, 'Перед завершением заявки укажите стоимость перевозки', 'VALIDATION_ERROR');
+      throw new HttpError(400, 'Перед завершением заявки укажите стоимость поездки', 'VALIDATION_ERROR');
     }
 
     const payments = body.amount !== undefined || body.paymentStatus !== undefined || body.paymentMethod !== undefined || body.paidAmount !== undefined
@@ -206,8 +213,8 @@ async function updateOrder(id, body) {
         clientId: client.id,
         pickupAddress,
         destinationAddress,
-        cargoType,
-        loadersRequired,
+        passengerCount: count,
+        luggageDetails,
         vehicle,
         vehicleId,
         amountCents,
@@ -218,7 +225,7 @@ async function updateOrder(id, body) {
         startedAt: existing.startedAt,
         completedAt: status === 'COMPLETED' ? existing.completedAt || now : null,
         cancelledAt: status === 'CANCELLED' ? existing.cancelledAt || now : null,
-        searchText: orderSearchText({ client, pickupAddress, destinationAddress, cargoType, vehicle, source, notes }),
+        searchText: orderSearchText({ client, pickupAddress, destinationAddress, passengerCount: count, luggageDetails, vehicle, source, notes }),
       },
       include: { client: true, vehicleRecord: { include: { carrier: true } } },
     });
