@@ -1,5 +1,5 @@
 // ============================================================
-// Трансфер19 — CONTROL / CRM
+// Комфорт Сибири — CONTROL / CRM
 // Внутренняя платформа: заявки, клиенты, автопарк, партнёры.
 // ============================================================
 
@@ -634,7 +634,83 @@ img { display: block; max-width: 100%; }
 .push-settings__actions .control-button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:640px){.push-settings{padding:18px}.push-settings__header{gap:12px}.push-settings__symbol{flex-basis:44px;height:44px}.push-settings__actions .control-button{width:100%;justify-content:center}}
 
-/* Трансфер19: тихий оливковый акцент, контрастные кнопки, карточки фотографий */
+/* Комфорт Сибири: тихий оливковый акцент, контрастные кнопки, карточки фотографий */
 .control-brand__mark { border-radius: 12px; }
 .control-button--primary, .request-type-toggle button.is-active { color: #fff; }
 .fleet-admin-card__specs { overflow-wrap: anywhere; }
+
+
+// SEO-поля автомобилей и доступный редактор ALT для каждой фотографии.
+.seo-vehicle-preview {
+  padding: 18px 20px;
+  border: 1px solid rgba(103, 90, 69, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+}
+.seo-vehicle-preview__caption {
+  display: block;
+  color: #697276;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.seo-vehicle-preview__url {
+  margin: 12px 0 5px;
+  color: #536748;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.seo-vehicle-preview__title {
+  margin: 0 0 7px;
+  color: #27589c;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.seo-vehicle-preview__description {
+  margin: 0;
+  color: #586269;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.vehicle-gallery-editor__item {
+  aspect-ratio: auto;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.85);
+}
+.vehicle-gallery-editor__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e7e5df;
+}
+.vehicle-gallery-editor__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vehicle-gallery-editor__alt {
+  display: grid;
+  gap: 6px;
+  padding: 9px;
+}
+.vehicle-gallery-editor__alt span {
+  color: #536748;
+  font-size: 10px;
+  font-weight: 800;
+}
+.vehicle-gallery-editor__alt input {
+  min-width: 0;
+  width: 100%;
+  padding: 10px;
+  font-size: 11px;
+}
+@media (max-width: 960px) {
+  .vehicle-gallery-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 470px) {
+  .vehicle-gallery-editor { grid-template-columns: 1fr; }
+}

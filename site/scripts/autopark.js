@@ -80,7 +80,7 @@
       body.append(thumbs);
     }
     const link = node('a', 'vehicle-card__more', 'Подробнее ');
-    link.href = `/car.html?slug=${encodeURIComponent(vehicle.slug)}`;
+    link.href = `/autopark/${encodeURIComponent(vehicle.slug)}`;
     const circle = node('span', 'vehicle-card__more-symbol circle-icon');
     circle.setAttribute('aria-hidden', 'true'); circle.append(node('span', 'circle-icon__glyph', '+'));
     link.append(circle); body.append(link); article.append(cover, body);
@@ -99,7 +99,7 @@
       ));
     } catch (error) {
       grid.replaceChildren(node('p', 'autopark-fleet__note', 'Не удалось загрузить автопарк. Обновите страницу или свяжитесь с нами.'));
-      console.warn('Трансфер19 автопарк:', error.message);
+      console.warn('Комфорт Сибири автопарк:', error.message);
     }
   }
   renderFleet();

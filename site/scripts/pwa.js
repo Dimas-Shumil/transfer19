@@ -22,8 +22,8 @@
     if (banner || dismissed || installed() || read('installed') === '1' || Number(read('later')) > Date.now()) return;
     banner = document.createElement('aside');
     banner.className = 'pwa-banner';
-    banner.setAttribute('aria-label', 'Установка приложения Трансфер19');
-    banner.innerHTML = `<div class="pwa-banner__inner"><img src="/site/img/pwa-192.png" width="48" height="48" alt="" /><div class="pwa-banner__copy"><strong>Трансфер19 — всегда под рукой</strong><p id="pwa-help">Установите приложение на телефон — открывайте с главного экрана.</p></div><div class="pwa-banner__actions"><button type="button" class="pwa-banner__install">Установить</button><button type="button" class="pwa-banner__later">Позже</button></div></div>`;
+    banner.setAttribute('aria-label', 'Установка приложения Комфорт Сибири');
+    banner.innerHTML = `<div class="pwa-banner__inner"><img src="/site/img/pwa-192.png" width="48" height="48" alt="" /><div class="pwa-banner__copy"><strong>Комфорт Сибири — всегда под рукой</strong><p id="pwa-help">Установите приложение на телефон — открывайте с главного экрана.</p></div><div class="pwa-banner__actions"><button type="button" class="pwa-banner__install">Установить</button><button type="button" class="pwa-banner__later">Позже</button></div></div>`;
     banner.querySelector('.pwa-banner__later').addEventListener('click', later);
     banner.querySelector('.pwa-banner__install').addEventListener('click', async () => {
       if (deferred) {

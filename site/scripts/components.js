@@ -9,7 +9,10 @@
 
   function loadHTML(filename) {
     if (!templates.has(filename)) {
-      const request = fetch(new URL(filename, componentsDir)).then((response) => {
+      const url = new URL(filename, componentsDir);
+      // После смены бренда загружаем свежие header/footer, не используя старый кеш.
+      url.searchParams.set('v', '20261023-comfort-sibiri');
+      const request = fetch(url).then((response) => {
         if (!response.ok) {
           throw new Error(`${filename}: HTTP ${response.status}`);
         }

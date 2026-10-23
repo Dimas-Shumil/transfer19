@@ -165,7 +165,7 @@ function emptyState(icon, title, textValue = '') {
 }
 
 function pageHeader(title, subtitle, actions = '') {
-  return `<header class="page-header"><div><span class="control-eyebrow">Трансфер19</span><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><div class="page-header__actions">${actions}</div></header>`;
+  return `<header class="page-header"><div><span class="control-eyebrow">Комфорт Сибири</span><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><div class="page-header__actions">${actions}</div></header>`;
 }
 
 function setActiveNav(route) {
@@ -176,7 +176,7 @@ function openModal(title, body, footer = '', wide = false) {
   if (!modalRoot.firstElementChild) {
     modalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   }
-  modalRoot.innerHTML = `<div class="modal-backdrop" data-modal-backdrop><section class="modal${wide ? ' modal--wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"><header class="modal__header"><div><span class="control-eyebrow">Трансфер19</span><h2 id="modal-title">${escapeHtml(title)}</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Закрыть"><i class="ti ti-x"></i></button></header><div class="modal__body">${body}</div>${footer ? `<footer class="modal__footer">${footer}</footer>` : ''}</section></div>`;
+  modalRoot.innerHTML = `<div class="modal-backdrop" data-modal-backdrop><section class="modal${wide ? ' modal--wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"><header class="modal__header"><div><span class="control-eyebrow">Комфорт Сибири</span><h2 id="modal-title">${escapeHtml(title)}</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Закрыть"><i class="ti ti-x"></i></button></header><div class="modal__body">${body}</div>${footer ? `<footer class="modal__footer">${footer}</footer>` : ''}</section></div>`;
   document.body.classList.add('is-modal-open');
   appShell?.setAttribute('inert', '');
   const modal = modalRoot.querySelector('.modal');
@@ -511,8 +511,10 @@ async function loadFleet() {
 function vehicleGalleryItems(vehicle) {
   const items = [];
   const seen = new Set();
+  // Если обложка уже есть в галерее, сохраняем её собственный ALT при редактировании.
   if (vehicle?.previewImage) {
-    items.push({ image: vehicle.previewImage, alt: vehicle.name || '' });
+    const original = vehicle.images?.find((item) => item.image === vehicle.previewImage);
+    items.push({ image: vehicle.previewImage, alt: original?.alt || vehicle.name || '' });
     seen.add(vehicle.previewImage);
   }
   for (const image of vehicle?.images || []) {
@@ -533,6 +535,16 @@ function vehicleFormMarkup(vehicle = null) {
     <label class="control-field"><span class="control-field__label">Slug *</span><input class="control-input" name="slug" required maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${attr(vehicle?.slug || '')}" placeholder="stepwgn-white"></label>
     <label class="control-field field--wide"><span class="control-field__label">Краткое описание</span><input class="control-input" name="shortDescription" maxlength="400" value="${attr(vehicle?.shortDescription || '')}" placeholder="Текст в карточке и верхнем блоке car.html"></label>
     <label class="control-field field--wide"><span class="control-field__label">Основное описание</span><textarea class="control-textarea" name="description" maxlength="4000" placeholder="Описание автомобиля">${escapeHtml(vehicle?.description || '')}</textarea></label>
+
+    <div class="form-section-title field--wide"><span>SEO страницы автомобиля</span></div>
+    <label class="control-field field--wide"><span class="control-field__label">SEO Title</span><input class="control-input" name="seoTitle" maxlength="120" value="${attr(vehicle?.seoTitle || '')}" placeholder="${attr(`${vehicle?.name || 'Название автомобиля'} — минивэн для трансферов | Комфорт Сибири`)}"><small class="control-field__hint">Заголовок во вкладке браузера и в поисковой выдаче. Если пусто — формируется автоматически.</small></label>
+    <label class="control-field field--wide"><span class="control-field__label">SEO Description</span><textarea class="control-textarea" name="seoDescription" maxlength="300" rows="3" placeholder="Описание страницы для Яндекса и Google">${escapeHtml(vehicle?.seoDescription || '')}</textarea><small class="control-field__hint">Краткое описание для поисковиков и социальных сетей. Если пусто — используется краткое описание автомобиля.</small></label>
+    <div class="seo-vehicle-preview field--wide" data-vehicle-seo-preview aria-label="Предпросмотр SEO">
+      <span class="seo-vehicle-preview__caption">Предпросмотр результатов поиска</span>
+      <p class="seo-vehicle-preview__url" data-seo-url></p>
+      <p class="seo-vehicle-preview__title" data-seo-title></p>
+      <p class="seo-vehicle-preview__description" data-seo-description></p>
+    </div>
 
     <div class="form-section-title field--wide"><span>Принадлежность</span></div>
     <div class="request-type-toggle field--wide" role="group" aria-label="Принадлежность машины">
@@ -590,7 +602,7 @@ function renderVehicleGalleryEditor(form) {
   if (!editor) return;
   const gallery = readVehicleGallery(form);
   editor.innerHTML = gallery.length
-    ? gallery.map((item, index) => `<figure class="vehicle-gallery-editor__item"><img src="${attr(item.image)}" alt="${attr(item.alt || `Фото ${index + 1}`)}"><div class="vehicle-gallery-editor__actions"><button class="vehicle-gallery-editor__main${index === 0 ? ' is-main' : ''}" type="button" data-main-gallery-image="${index}"${index === 0 ? ' disabled' : ''}>${index === 0 ? 'Главное фото' : 'Сделать главным'}</button><button class="vehicle-gallery-editor__remove" type="button" data-remove-gallery-image="${index}" aria-label="Удалить фото ${index + 1}" title="Удалить фото"><i class="ti ti-x" aria-hidden="true"></i></button></div></figure>`).join('')
+    ? gallery.map((item, index) => `<figure class="vehicle-gallery-editor__item"><div class="vehicle-gallery-editor__media"><img src="${attr(item.image)}" alt="${attr(item.alt || `Фото ${index + 1}`)}"><div class="vehicle-gallery-editor__actions"><button class="vehicle-gallery-editor__main${index === 0 ? ' is-main' : ''}" type="button" data-main-gallery-image="${index}"${index === 0 ? ' disabled' : ''}>${index === 0 ? 'Главное фото' : 'Сделать главным'}</button><button class="vehicle-gallery-editor__remove" type="button" data-remove-gallery-image="${index}" aria-label="Удалить фото ${index + 1}" title="Удалить фото"><i class="ti ti-x" aria-hidden="true"></i></button></div></div><label class="vehicle-gallery-editor__alt"><span>ALT · Фото ${index + 1}</span><input class="control-input" type="text" maxlength="180" data-gallery-alt="${index}" value="${attr(item.alt)}" placeholder="Опишите, что на фото"></label></figure>`).join('')
     : '<div class="vehicle-gallery-editor__empty"><i class="ti ti-photo"></i><span>Фотографий пока нет</span></div>';
 }
 
@@ -637,6 +649,21 @@ function bindVehicleEditor() {
   });
   if (!form.dataset.vehicleId && !slugInput.value) slugInput.value = slugifyVehicleName(nameInput.value);
 
+  const updateSeoPreview = () => {
+    const slug = slugInput.value.trim();
+    const title = form.elements.seoTitle.value.trim() || `${nameInput.value.trim() || 'Автомобиль'} — минивэн для трансферов | Комфорт Сибири`;
+    const description = form.elements.seoDescription.value.trim() || form.elements.shortDescription.value.trim() || 'Описание автомобиля будет показано здесь.';
+    const preview = form.querySelector('[data-vehicle-seo-preview]');
+    if (!preview) return;
+    preview.querySelector('[data-seo-url]').textContent = `transfer-comfort-sibiri.ru/autopark/${slug || 'slug'}`;
+    preview.querySelector('[data-seo-title]').textContent = title;
+    preview.querySelector('[data-seo-description]').textContent = description;
+  };
+  for (const field of [nameInput, slugInput, form.elements.shortDescription, form.elements.seoTitle, form.elements.seoDescription]) {
+    field.addEventListener('input', updateSeoPreview);
+  }
+  updateSeoPreview();
+
   const partnerFields = form.querySelector('[data-partner-fields]');
   const syncOwnership = (value) => {
     form.elements.ownershipType.value = value;
@@ -648,7 +675,19 @@ function bindVehicleEditor() {
   syncOwnership(form.elements.ownershipType.value);
 
   renderVehicleGalleryEditor(form);
-  form.querySelector('[data-vehicle-gallery-editor]')?.addEventListener('click', (event) => {
+  const galleryEditor = form.querySelector('[data-vehicle-gallery-editor]');
+  galleryEditor?.addEventListener('input', (event) => {
+    const target = event.target.closest('[data-gallery-alt]');
+    if (!target) return;
+    const index = Number(target.dataset.galleryAlt);
+    const gallery = readVehicleGallery(form);
+    if (Number.isInteger(index) && index >= 0 && index < gallery.length) {
+      gallery[index].alt = target.value.slice(0, 180);
+      // Только обновляем скрытый JSON: повторная отрисовка прервёт ввод текста.
+      form.elements.gallery.value = JSON.stringify(gallery);
+    }
+  });
+  galleryEditor?.addEventListener('click', (event) => {
     const removeButton = event.target.closest('[data-remove-gallery-image]');
     if (removeButton) {
       const index = Number(removeButton.dataset.removeGalleryImage);
@@ -686,7 +725,7 @@ function bindVehicleEditor() {
       const uploaded = [];
       for (const file of files) {
         const imagePath = await uploadVehicleImage(file);
-        const alt = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+        const alt = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim().slice(0, 180);
         uploaded.push({ image: imagePath, alt });
       }
       writeVehicleGallery(form, [...current, ...uploaded]);
@@ -733,7 +772,7 @@ async function showVehicle(id) {
   const partner = vehicle.ownershipType === 'PARTNER' && vehicle.carrier
     ? `<div class="detail-item"><span>Принадлежность</span><strong>Партнёрская</strong></div><div class="detail-item"><span>Партнёр</span><strong>${escapeHtml(vehicle.carrier.name)}</strong></div>`
     : `<div class="detail-item"><span>Принадлежность</span><strong>Собственная</strong></div>`;
-  openModal(vehicle.name, `<div class="vehicle-detail"><div class="vehicle-detail__hero">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-car"></i>'}<div><span>${vehicleStatusBadge(vehicle.status)}</span><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || 'Описание не заполнено')}</p></div></div><div class="detail-grid">${partner}<div class="detail-item"><span>Slug</span><strong>${escapeHtml(vehicle.slug)}</strong></div><div class="detail-item"><span>На сайте</span><strong>${vehicle.published ? 'Да' : 'Нет'}</strong></div><div class="detail-item"><span>Пассажирских мест</span><strong>${vehicle.passengerSeats ?? '—'}</strong></div><div class="detail-item"><span>Багаж</span><strong>${escapeHtml(vehicle.luggageCapacity || '—')}</strong></div><div class="detail-item"><span>Особенности салона</span><strong>${escapeHtml(vehicle.cabinFeatures || '—')}</strong></div><div class="detail-item"><span>Удобства</span><strong>${escapeHtml(vehicle.amenities || '—')}</strong></div><div class="detail-item"><span>Зона работы</span><strong>${escapeHtml(vehicle.serviceArea || '—')}</strong></div><div class="detail-item"><span>Заявок в истории</span><strong>${vehicle._count?.orders || 0}</strong></div></div>${vehicle.images.length ? `<div class="vehicle-gallery-admin">${vehicle.images.map(image => `<img src="${attr(image.image)}" alt="${attr(image.alt || '')}">`).join('')}</div>` : ''}</div><div class="modal-actions"><button class="control-button" data-edit-vehicle="${vehicle.id}"><i class="ti ti-edit"></i> Редактировать</button><button class="control-button control-button--danger" data-delete-vehicle="${vehicle.id}"><i class="ti ti-trash"></i> Удалить</button></div>`, '<button class="control-button" type="button" data-close-modal>Закрыть</button>', true);
+  openModal(vehicle.name, `<div class="vehicle-detail"><div class="vehicle-detail__hero">${vehicle.previewImage ? `<img src="${attr(vehicle.previewImage)}" alt="">` : '<i class="ti ti-car"></i>'}<div><span>${vehicleStatusBadge(vehicle.status)}</span><h3>${escapeHtml(vehicle.name)}</h3><p>${escapeHtml(vehicle.shortDescription || 'Описание не заполнено')}</p></div></div><div class="detail-grid">${partner}<div class="detail-item"><span>Slug</span><strong>${escapeHtml(vehicle.slug)}</strong></div><div class="detail-item detail-item--wide"><span>SEO Title</span><strong>${escapeHtml(vehicle.seoTitle || `${vehicle.name} — минивэн для трансферов | Комфорт Сибири`)}</strong></div><div class="detail-item detail-item--wide"><span>SEO Description</span><strong>${escapeHtml(vehicle.seoDescription || vehicle.shortDescription || 'Автоматически из описания')}</strong></div><div class="detail-item"><span>На сайте</span><strong>${vehicle.published ? 'Да' : 'Нет'}</strong></div><div class="detail-item"><span>Пассажирских мест</span><strong>${vehicle.passengerSeats ?? '—'}</strong></div><div class="detail-item"><span>Багаж</span><strong>${escapeHtml(vehicle.luggageCapacity || '—')}</strong></div><div class="detail-item"><span>Особенности салона</span><strong>${escapeHtml(vehicle.cabinFeatures || '—')}</strong></div><div class="detail-item"><span>Удобства</span><strong>${escapeHtml(vehicle.amenities || '—')}</strong></div><div class="detail-item"><span>Зона работы</span><strong>${escapeHtml(vehicle.serviceArea || '—')}</strong></div><div class="detail-item"><span>Заявок в истории</span><strong>${vehicle._count?.orders || 0}</strong></div></div>${vehicle.images.length ? `<div class="vehicle-gallery-admin">${vehicle.images.map(image => `<img src="${attr(image.image)}" alt="${attr(image.alt || '')}">`).join('')}</div>` : ''}</div><div class="modal-actions"><button class="control-button" data-edit-vehicle="${vehicle.id}"><i class="ti ti-edit"></i> Редактировать</button><button class="control-button control-button--danger" data-delete-vehicle="${vehicle.id}"><i class="ti ti-trash"></i> Удалить</button></div>`, '<button class="control-button" type="button" data-close-modal>Закрыть</button>', true);
 }
 
 function taskCard(task) {

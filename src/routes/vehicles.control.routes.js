@@ -115,6 +115,8 @@ function vehiclePayload(body, existing = null) {
     slug: body.slug !== undefined ? safeSlug(body.slug, 'Slug', true) : existing?.slug,
     shortDescription: body.shortDescription !== undefined ? text(body.shortDescription, 'Краткое описание', 400) : existing?.shortDescription,
     description: body.description !== undefined ? text(body.description, 'Описание', 4000) : existing?.description,
+    seoTitle: body.seoTitle !== undefined ? singleLineText(body.seoTitle, 'SEO Title', 120) : existing?.seoTitle,
+    seoDescription: body.seoDescription !== undefined ? singleLineText(body.seoDescription, 'SEO Description', 300) : existing?.seoDescription,
     specsDescription: body.specsDescription !== undefined ? text(body.specsDescription, 'Описание характеристик', 2000) : existing?.specsDescription,
     passengerSeats: body.passengerSeats !== undefined ? optionalInt(body.passengerSeats, 'Пассажирские места', 1, 20) : existing?.passengerSeats,
     luggageCapacity: body.luggageCapacity !== undefined ? text(body.luggageCapacity, 'Багаж', 500) : existing?.luggageCapacity,

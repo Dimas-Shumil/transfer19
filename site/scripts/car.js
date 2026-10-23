@@ -19,7 +19,7 @@
     }));
   };
   function unavailable(message) {
-    document.title = 'Автомобиль недоступен — Трансфер19';
+    document.title = 'Автомобиль недоступен — Комфорт Сибири';
     text('#car-title', 'Автомобиль недоступен');
     text('[data-car-description]', message);
     text('[data-car-variant]', 'Выберите другой автомобиль в автопарке');
@@ -40,9 +40,7 @@
     } catch (error) {
       return unavailable('Не удалось получить информацию. Обновите страницу или свяжитесь с нами.');
     }
-    document.title = `${vehicle.name} — автомобиль для трансферов | Трансфер19`;
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.content = vehicle.shortDescription || `${vehicle.name}: описание и фотографии автомобиля для пассажирских трансферов по Хакасии.`;
+    // SEO Title и Description приходят в HTML с сервера: не перезаписываем их после API-запроса.
     text('#car-title', vehicle.name);
     text('[data-car-crumb]', vehicle.name);
     text('[data-car-variant]', 'Пассажирский минивэн');

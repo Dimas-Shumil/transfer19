@@ -1,0 +1,27 @@
+@use 'base' as *;
+@use 'header';
+@use 'footer';
+.page-route { background: $paper; }
+.route-hero { background: linear-gradient(135deg, #152433 0%, #354443 66%, #697450 100%); color: $white; }
+.route-hero__inner { padding-top: clamp(125px, 11vw, 200px); padding-bottom: clamp(84px, 9vw, 150px); }
+.route-breadcrumbs { display: flex; flex-wrap: wrap; gap: 12px; color: rgba($white, .8); font-size: 14px; margin-bottom: 55px; }
+.route-breadcrumbs a { text-decoration: underline; text-underline-offset: 3px; }
+.route-kicker { font-size: 12px; font-weight: 750; text-transform: uppercase; letter-spacing: .16em; color: $olive; }
+.route-hero .route-kicker { color: #c8d1af; }
+.route-hero h1 { font-size: clamp(46px, 6vw, 96px); letter-spacing: -.065em; line-height: 1.02; max-width: 1020px; margin: 16px 0 24px; }
+.route-hero__lead { font-size: clamp(18px, 1.85vw, 26px); line-height: 1.5; max-width: 800px; color: rgba($white, .87); margin-bottom: 42px; }
+.route-cta { display: inline-flex; align-items: center; justify-content: center; padding: 18px 28px; min-height: 56px; border-radius: 12px; font-weight: 700; background: $olive; color: $white; text-align: center; transition: background .3s $ease; }
+.route-cta:hover { background: $olive-dark; }
+.route-body, .route-faq { padding-top: clamp(68px, 8vw, 120px); padding-bottom: clamp(68px, 8vw, 120px); display: grid; grid-template-columns: minmax(200px, .9fr) minmax(0, 1.5fr); gap: clamp(24px, 6vw, 100px); }
+.route-body h2,.route-faq h2,.route-final h2 { font-size: clamp(32px, 3.6vw, 62px); line-height: 1.08; letter-spacing: -.05em; margin: 12px 0 20px; }
+.route-body__content { font-size: clamp(16px, 1.2vw, 19px); line-height: 1.75; color: $ink-muted; }
+.route-body__content h3 { color: $ink; font-size: clamp(21px, 2vw, 28px); line-height: 1.24; margin: 8px 0 10px; }
+.route-body__content p { margin: 0 0 30px; }
+.route-faq { border-top: 1px solid $line; }
+.route-faq__list { border-top: 1px solid $line; }
+.route-faq__list details { border-bottom: 1px solid $line; }
+.route-faq__list summary { font-size: 19px; font-weight: 650; padding: 22px 0; cursor: pointer; }
+.route-faq__list p { color: $ink-muted; line-height: 1.7; margin: 0 0 25px; }
+.route-final { padding-top: clamp(35px, 5vw, 70px); padding-bottom: clamp(35px, 5vw, 70px); border-top: 1px solid $line; display: flex; gap: 32px; align-items: center; justify-content: space-between; }
+.route-final p:not(.route-kicker) { max-width: 650px; color: $ink-muted; line-height: 1.6; }
+@media(max-width:800px) { .route-body,.route-faq { grid-template-columns: 1fr; gap: 16px; } .route-final { align-items: flex-start; flex-direction: column; } .route-hero__inner { padding-top: 130px; } }

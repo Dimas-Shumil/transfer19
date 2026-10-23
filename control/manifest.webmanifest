@@ -1,6 +1,6 @@
 {
-  "name": "Трансфер19 — управление",
-  "short_name": "Трансфер19",
+  "name": "Комфорт Сибири — управление",
+  "short_name": "Комфорт Сибири",
   "start_url": "/control/app.html#/dashboard",
   "display": "standalone",
   "background_color": "#172b39",
