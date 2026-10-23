@@ -8,8 +8,8 @@ self.addEventListener("push", (event) => {
     ? path : "/control/app.html#/requests";
   event.waitUntil(self.registration.showNotification(String(payload.title || "Комфорт Сибири").slice(0, 120), {
     body: String(payload.body || "Новая заявка").slice(0, 240),
-    icon: "/site/img/push-icon-192.png",
-    badge: "/site/img/push-icon-192.png",
+    icon: "/site/img/pwa-192.png",
+    badge: "/site/img/pwa-192.png",
     tag: String(payload.tag || "t19-order").slice(0, 80),
     renotify: true,
     data: { url: safePath },
