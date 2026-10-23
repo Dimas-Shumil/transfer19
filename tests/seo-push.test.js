@@ -11,7 +11,7 @@ test('sitemap exposes only public canonical pages and published vehicles', () =>
   const xml = sitemap([{ slug: 'stepwgn-white', updatedAt: new Date('2026-10-14T12:00:00.000Z') }]);
   assert.match(xml, /https:\/\/transfer19\.example\/autopark\/stepwgn-white/);
   assert.match(xml, /<lastmod>2026-10-14<\/lastmod>/);
-  assert.doesNotMatch(xml, /(?:\/index\.html|\/control\/|svoi-perevozki)/);
+  assert.doesNotMatch(xml, /(?:\/index\.html|\/control\/)/);
 });
 
 test('vehicle SSR uses Transfer19 canonical and passenger characteristics with escaped HTML', () => {

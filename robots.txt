@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /control/
 Disallow: /site/sass/
-# Sitemap URL will be set after the production domain is confirmed.
+Sitemap: https://transfer-comfort-sibiri.ru/sitemap.xml

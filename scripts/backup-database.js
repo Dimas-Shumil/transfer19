@@ -9,7 +9,7 @@ async function main() {
   await fs.mkdir(backupDir, { recursive: true });
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const target = path.join(backupDir, `svoi-gruzi-${stamp}.db`);
+  const target = path.join(backupDir, `transfer19-${stamp}.db`);
   await fs.copyFile(absoluteSource, target);
 
   console.log(target);

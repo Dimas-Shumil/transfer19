@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
 const prisma = require("./src/lib/prisma");
-const { sitemap, vehicleHtml, fleetHtml, homepageHtml } = require("./src/services/seo.service");
+const { sitemap, vehicleHtml, fleetHtml, homepageHtml, routeHtml } = require("./src/services/seo.service");
 const { asyncRoute } = require("./src/lib/async-route");
 const { env, validateEnv } = require("./src/config/env");
 const { loadSession } = require("./src/middleware/auth");
@@ -129,14 +129,22 @@ app.get('/autopark/:slug', asyncRoute(async (req, res) => {
   res.set('Cache-Control', 'no-cache');
   return res.type('html').send(vehicleHtml(vehicle));
 }));
+// Старинные ссылки из карточек: один индексируемый URL для каждого автомобиля.
 app.get('/car.html', asyncRoute(async (req, res) => {
   const slug = String(req.query.slug || '');
-  if (!slug) return res.redirect(302, '/autopark.html');
+  if (!slug) return res.redirect(301, '/autopark.html');
   const vehicle = await findPublishedVehicle(slug);
   if (!vehicle) return res.status(404).type('html').send('<h1>Автомобиль не найден</h1><a href="/autopark.html">Вернуться в автопарк</a>');
-  res.set('Cache-Control', 'no-cache');
-  return res.type('html').send(vehicleHtml(vehicle));
+  return res.redirect(301, `/autopark/${encodeURIComponent(vehicle.slug)}`);
 }));
+// Содержательные посадочные страницы для реально представленных на сайте направлений.
+app.get(['/routes/:slug', '/services/airport-abakan'], (req, res, next) => {
+  const slug = req.path === '/services/airport-abakan' ? 'airport-abakan' : String(req.params.slug || '');
+  const html = routeHtml(slug);
+  if (!html) return next();
+  res.set('Cache-Control', 'no-cache');
+  return res.type('html').send(html);
+});
 app.get('/index.html', (_req, res) => res.redirect(301, '/'));
 app.get('/', asyncRoute(async (_req, res) => {
   const vehicles = await prisma.vehicle.findMany({

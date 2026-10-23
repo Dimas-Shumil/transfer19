@@ -40,7 +40,7 @@
     } catch (error) {
       return unavailable('Не удалось получить информацию. Обновите страницу или свяжитесь с нами.');
     }
-    document.title = `${vehicle.name} — автомобиль для трансферов | Трансфер19`;
+    document.title = `${vehicle.name} — минивэн для трансферов | Трансфер19`;
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.content = vehicle.shortDescription || `${vehicle.name}: описание и фотографии автомобиля для пассажирских трансферов по Хакасии.`;
     text('#car-title', vehicle.name);

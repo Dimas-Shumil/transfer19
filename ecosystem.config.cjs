@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "svoi-gruzi",
+      name: "transfer19",
       script: "./server.js",
       cwd: __dirname,
       instances: 1,

@@ -2,7 +2,7 @@
 @use 'header';
 @use 'footer';
 
-// МАРШРУТ — стили публичной главной страницы.
+// Трансфер19 — стили публичной главной страницы.
 
 // Hero: единое фоновое изображение во всю секцию, без разреза и двойного blur-слоя.
 .hero {
@@ -1920,3 +1920,27 @@
 .car-card__placeholder { display: grid; place-items: center; width: 100%; height: 100%; padding: 24px; color: #526168; font-size: 13px; text-align: center; }
 .car-card__select:disabled { opacity: .45; cursor: not-allowed; }
 .fleet__empty { grid-column: 1 / -1; padding: 32px; background: #fff; border-radius: 14px; color: #526168; }
+
+// Информационные блоки маршрутов и вопросов (SEO/AEO) главной страницы.
+.seo-links, .seo-faq { padding-top: clamp(64px, 7vw, 110px); padding-bottom: clamp(64px, 7vw, 110px); }
+.seo-links { display: grid; grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.7fr); gap: clamp(28px, 6vw, 100px); align-items: start; }
+.seo-links h2, .seo-faq h2 { font-size: clamp(32px, 3.8vw, 62px); letter-spacing: -.055em; line-height: 1.1; margin: 16px 0 18px; }
+.seo-links p:not(.eyebrow), .seo-faq__intro p:not(.eyebrow) { max-width: 550px; color: $ink-muted; line-height: 1.65; }
+.seo-links__grid { display: grid; gap: 12px; }
+.seo-links__grid a { display: grid; gap: 8px; background: $white; border: 1px solid $line; border-radius: 17px; padding: 22px 26px; transition: transform .3s $ease, border-color .3s $ease; }
+.seo-links__grid a:hover { transform: translateY(-3px); border-color: $olive; }
+.seo-links__grid a strong { font-size: clamp(19px, 1.7vw, 26px); }
+.seo-links__grid a span { color: $ink-muted; font-size: 15px; }
+.seo-faq { display: grid; grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.7fr); gap: clamp(28px, 6vw, 100px); border-top: 1px solid $line; }
+.seo-faq__questions { min-width: 0; border-top: 1px solid $line; }
+.seo-faq details { border-bottom: 1px solid $line; }
+.seo-faq summary { position: relative; cursor: pointer; font-weight: 650; font-size: clamp(17px, 1.5vw, 21px); padding: 22px 44px 22px 0; list-style: none; }
+.seo-faq summary::-webkit-details-marker { display: none; }
+.seo-faq summary::after { content: '+'; position: absolute; right: 10px; top: 18px; font-size: 26px; color: $olive; }
+.seo-faq details[open] summary::after { content: '−'; }
+.seo-faq details p { margin: 0 0 24px; color: $ink-muted; line-height: 1.7; max-width: 720px; }
+.seo-faq details p a { color: $olive-dark; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 860px) {
+  .seo-links, .seo-faq { grid-template-columns: 1fr; gap: 28px; }
+  .seo-links__grid a { padding: 21px; }
+}

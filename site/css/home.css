@@ -1,3 +1,4 @@
+@charset "UTF-8";
 *,
 *::before,
 *::after {
@@ -2624,4 +2625,123 @@ h3 {
   background: #fff;
   border-radius: 14px;
   color: #526168;
+}
+
+.seo-links, .seo-faq {
+  padding-top: clamp(64px, 7vw, 110px);
+  padding-bottom: clamp(64px, 7vw, 110px);
+}
+
+.seo-links {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.7fr);
+  gap: clamp(28px, 6vw, 100px);
+  align-items: start;
+}
+
+.seo-links h2, .seo-faq h2 {
+  font-size: clamp(32px, 3.8vw, 62px);
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+  margin: 16px 0 18px;
+}
+
+.seo-links p:not(.eyebrow), .seo-faq__intro p:not(.eyebrow) {
+  max-width: 550px;
+  color: #6c7479;
+  line-height: 1.65;
+}
+
+.seo-links__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.seo-links__grid a {
+  display: grid;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e6df;
+  border-radius: 17px;
+  padding: 22px 26px;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.seo-links__grid a:hover {
+  transform: translateY(-3px);
+  border-color: #788047;
+}
+
+.seo-links__grid a strong {
+  font-size: clamp(19px, 1.7vw, 26px);
+}
+
+.seo-links__grid a span {
+  color: #6c7479;
+  font-size: 15px;
+}
+
+.seo-faq {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.7fr);
+  gap: clamp(28px, 6vw, 100px);
+  border-top: 1px solid #e5e6df;
+}
+
+.seo-faq__questions {
+  min-width: 0;
+  border-top: 1px solid #e5e6df;
+}
+
+.seo-faq details {
+  border-bottom: 1px solid #e5e6df;
+}
+
+.seo-faq summary {
+  position: relative;
+  cursor: pointer;
+  font-weight: 650;
+  font-size: clamp(17px, 1.5vw, 21px);
+  padding: 22px 44px 22px 0;
+  list-style: none;
+}
+
+.seo-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.seo-faq summary::after {
+  content: "+";
+  position: absolute;
+  right: 10px;
+  top: 18px;
+  font-size: 26px;
+  color: #788047;
+}
+
+.seo-faq details[open] summary::after {
+  content: "−";
+}
+
+.seo-faq details p {
+  margin: 0 0 24px;
+  color: #6c7479;
+  line-height: 1.7;
+  max-width: 720px;
+}
+
+.seo-faq details p a {
+  color: #606b39;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+  .seo-links, .seo-faq {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .seo-links__grid a {
+    padding: 21px;
+  }
 }
