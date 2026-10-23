@@ -1,6 +1,7 @@
 @use 'base' as *;
 @use 'header';
 @use 'footer';
+@use 'mobile-contact';
 .page-route { background: $paper; }
 .route-hero { background: linear-gradient(135deg, #152433 0%, #354443 66%, #697450 100%); color: $white; }
 .route-hero__inner { padding-top: clamp(125px, 11vw, 200px); padding-bottom: clamp(84px, 9vw, 150px); }

@@ -209,61 +209,75 @@
     const year = component.querySelector("[data-footer-year]");
     if (year) year.textContent = new Date().getFullYear();
 
-    const actions = component.querySelector("[data-mobile-contact-actions]");
-    const callLink = component.querySelector("[data-mobile-call-link]");
-    const footer = component.querySelector(".site-footer");
-    const firstScene = document.querySelector("main > section:first-of-type");
-    if (!actions || !footer || !firstScene) return;
-
-    // Номер берётся из data-phone в components/footer.html.
-    const phone = String(actions.dataset.phone || "").trim();
-    if (callLink && phone) {
-      callLink.href = `tel:${phone.replace(/[^+\d]/g, "")}`;
-      callLink.setAttribute("aria-label", "Позвонить");
-    }
-
-    const mobile = window.matchMedia("(max-width: 767px)");
+    const footer = component.querySelector('.site-footer');
+    const hero = document.querySelector('main > section:first-of-type');
+    if (!footer || !hero) return;
+    const actions = document.createElement('nav');
+    actions.className = 'mobile-contact';
+    actions.setAttribute('aria-label', 'Связаться с компанией');
+    actions.setAttribute('aria-hidden', 'true');
+    actions.inert = true;
+    // Единственный источник номера — подтверждённый контакт компании.
+    const phone = footer.dataset.phone || '';
+    const icon = (name) => `<svg aria-hidden="true" viewBox="0 0 24 24"><use href="/site/img/icons.svg#${name}"></use></svg>`;
+    actions.innerHTML = `<a class="mobile-contact__link mobile-contact__link--call" data-mobile-call ${phone ? `href="tel:${phone}"` : 'aria-disabled="true" tabindex="-1"'}>${icon('phone')}<span>Позвонить</span></a><a class="mobile-contact__link mobile-contact__link--message" href="/#booking">${icon('message')}<span>Написать</span></a>`;
+    document.body.append(actions);
+    const mobile = matchMedia('(max-width: 767px)');
+    // Порог появления: Hero целиком ушёл за верхнюю границу экрана.
+    const HERO_EXIT_OFFSET = 0;
     let frame = 0;
-
-    function updateMobileActions() {
+    let footerObserver;
+    let footerNear = true;
+    let disposed = false;
+    function update() {
       frame = 0;
-
-      if (!mobile.matches) {
-        actions.classList.remove("is-visible");
-        actions.setAttribute("aria-hidden", "true");
-        actions.inert = true;
-        return;
-      }
-
-      const heroBottom = firstScene.getBoundingClientRect().bottom;
-      const footerTop = footer.getBoundingClientRect().top;
-
-      // Показываем после выхода с первого экрана.
-      // Скрываем чуть раньше, чем футер начнёт занимать экран.
-      const heroPassed = heroBottom <= 82;
-      const footerStarted = footerTop <= window.innerHeight - 18;
-      const visible = heroPassed && !footerStarted;
-
-      actions.classList.toggle("is-visible", visible);
-      actions.setAttribute("aria-hidden", String(!visible));
+      const blocked = document.body.classList.contains('is-menu-open') ||
+        document.querySelector('dialog[open]') ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+      const visible = mobile.matches && hero.getBoundingClientRect().bottom <= HERO_EXIT_OFFSET && !footerNear && !blocked;
+      actions.classList.toggle('is-visible', visible);
       actions.inert = !visible;
+      actions.setAttribute('aria-hidden', String(!visible));
     }
-
-    function scheduleUpdate() {
-      if (frame) return;
-      frame = window.requestAnimationFrame(updateMobileActions);
+    function schedule() {
+      if (!frame && !disposed) frame = requestAnimationFrame(update);
     }
-
-    window.addEventListener("scroll", scheduleUpdate, { passive: true });
-    window.addEventListener("resize", scheduleUpdate, { passive: true });
-    mobile.addEventListener("change", scheduleUpdate);
-    updateMobileActions();
-
+    function observeFooter() {
+      footerObserver?.disconnect();
+      // Запас до футера равен полной высоте CTA вместе с нижним отступом/safe area.
+      const clearance = Math.ceil(actions.offsetHeight + (parseFloat(getComputedStyle(actions).bottom) || 0) + 8);
+      footerNear = footer.getBoundingClientRect().top <= innerHeight + clearance;
+      footerObserver = new IntersectionObserver(([entry]) => {
+        footerNear = entry.isIntersecting || entry.boundingClientRect.top <= 0;
+        schedule();
+      }, { rootMargin: `0px 0px ${clearance}px 0px`, threshold: 0 });
+      footerObserver.observe(footer);
+      schedule();
+    }
+    const sizeObserver = new ResizeObserver(observeFooter);
+    sizeObserver.observe(actions);
+    sizeObserver.observe(hero);
+    const stateObserver = new MutationObserver(schedule);
+    stateObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    document.querySelectorAll('dialog').forEach(dialog => stateObserver.observe(dialog, { attributes: true, attributeFilter: ['open'] }));
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', observeFooter, { passive: true });
+    document.addEventListener('focusin', schedule);
+    document.addEventListener('focusout', schedule);
+    mobile.addEventListener('change', observeFooter);
+    observeFooter();
     return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", scheduleUpdate);
-      window.removeEventListener("resize", scheduleUpdate);
-      mobile.removeEventListener("change", scheduleUpdate);
+      disposed = true;
+      cancelAnimationFrame(frame);
+      footerObserver.disconnect();
+      sizeObserver.disconnect();
+      stateObserver.disconnect();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', observeFooter);
+      document.removeEventListener('focusin', schedule);
+      document.removeEventListener('focusout', schedule);
+      mobile.removeEventListener('change', observeFooter);
+      actions.remove();
     };
   }
 
@@ -279,6 +293,10 @@
 
   class SiteFooter extends HTMLComponent {
     connectedCallback() {
+      if (this._loaded) {
+        if (!this._cleanup) this._cleanup = initFooter(this);
+        return;
+      }
       this.load("footer.html", initFooter);
     }
   }
