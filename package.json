@@ -2,7 +2,7 @@
   "name": "transfer19",
   "version": "1.0.0",
   "private": true,
-  "description": "Трансфер19 — пассажирские трансферы по Хакасии, публичный сайт и CRM",
+  "description": "Комфорт Сибири — пассажирские трансферы по Хакасии, публичный сайт и CRM",
   "main": "server.js",
   "scripts": {
     "preview": "node scripts/preview-public.js",

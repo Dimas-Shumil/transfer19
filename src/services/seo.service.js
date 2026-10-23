@@ -15,7 +15,7 @@ const routes = Object.freeze({
   'abakan-krasnoyarsk': {
     path: '/routes/abakan-krasnoyarsk', slug: 'abakan-krasnoyarsk',
     crumb: 'Абакан — Красноярск', heading: 'Трансфер Абакан — Красноярск',
-    title: 'Трансфер Абакан — Красноярск на минивэне | Трансфер19',
+    title: 'Трансфер Абакан — Красноярск на минивэне | Комфорт Сибири',
     description: 'Междугородний трансфер Абакан — Красноярск с водителем. Подберите минивэн, укажите дату и количество пассажиров. Стоимость поездки рассчитывается индивидуально.',
     intro: 'Междугородняя поездка с водителем без необходимости самостоятельно управлять автомобилем. Время выезда, точку подачи и маршрут согласуем заранее.',
     details: [
@@ -32,7 +32,7 @@ const routes = Object.freeze({
   'abakan-shira': {
     path: '/routes/abakan-shira', slug: 'abakan-shira',
     crumb: 'Абакан — Шира', heading: 'Трансфер Абакан — Шира',
-    title: 'Трансфер Абакан — Шира и к озёрам | Трансфер19',
+    title: 'Трансфер Абакан — Шира и к озёрам | Комфорт Сибири',
     description: 'Поездка из Абакана в Шира и к местам отдыха на минивэне с водителем. Согласование точки прибытия, даты, пассажиров и багажа перед трансфером.',
     intro: 'Поездка к озёрам и местам отдыха в районе Шира. Расскажите, куда именно направляетесь — подберём вариант трансфера для вашей группы.',
     details: [
@@ -49,7 +49,7 @@ const routes = Object.freeze({
   'airport-abakan': {
     path: '/services/airport-abakan', slug: 'airport-abakan',
     crumb: 'Аэропорт Абакана', heading: 'Трансфер из аэропорта Абакана',
-    title: 'Трансфер из аэропорта Абакана на минивэне | Трансфер19',
+    title: 'Трансфер из аэропорта Абакана на минивэне | Комфорт Сибири',
     description: 'Предварительная заявка на поездку из аэропорта Абакана и обратно. Минивэны с водителем для поездок по Хакасии. Время подачи и стоимость согласовываются.',
     intro: 'Запланируйте поездку из аэропорта Абакана до нужного адреса или обратный трансфер. В заявке можно выбрать аэропорт в качестве точки отправления или назначения.',
     details: [
@@ -77,8 +77,8 @@ function gallery(vehicle) {
 function businessGraph() {
   const base = origin();
   return [
-    { '@type': 'Organization', '@id': `${base}/#organization`, name: 'Трансфер19', url: `${base}/`, areaServed: { '@type': 'AdministrativeArea', name: 'Республика Хакасия' } },
-    { '@type': 'WebSite', '@id': `${base}/#website`, name: 'Трансфер19', url: `${base}/`, inLanguage: 'ru-RU', publisher: { '@id': `${base}/#organization` } },
+    { '@type': 'Organization', '@id': `${base}/#organization`, name: 'Комфорт Сибири', url: `${base}/`, areaServed: { '@type': 'AdministrativeArea', name: 'Республика Хакасия' } },
+    { '@type': 'WebSite', '@id': `${base}/#website`, name: 'Комфорт Сибири', url: `${base}/`, inLanguage: 'ru-RU', publisher: { '@id': `${base}/#organization` } },
     { '@type': 'Service', '@id': `${base}/#transfer-service`, name: 'Пассажирские трансферы по Хакасии', serviceType: 'Пассажирские трансферы на минивэнах с водителем', provider: { '@id': `${base}/#organization` }, areaServed: [{ '@type': 'Place', name: 'Абакан' }, { '@type': 'AdministrativeArea', name: 'Республика Хакасия' }] }
   ];
 }
@@ -99,7 +99,7 @@ function metadata({ route, title, description, image, graph = [], ogType = 'webs
     '\n    <meta name="robots" content="index,follow,max-image-preview:large" />' +
     `\n    <meta property="og:type" content="${escapeHtml(ogType)}" />` +
     '\n    <meta property="og:locale" content="ru_RU" />' +
-    '\n    <meta property="og:site_name" content="Трансфер19" />' +
+    '\n    <meta property="og:site_name" content="Комфорт Сибири" />' +
     `\n    <meta property="og:title" content="${titleText}" />` +
     `\n    <meta property="og:description" content="${desc}" />` +
     `\n    <meta property="og:url" content="${escapeHtml(url)}" />` +
@@ -135,7 +135,7 @@ function homepageHtml(vehicles = []) {
   if (start < 0 || end < 0) throw new Error('Не найден контейнер карточек автопарка на главной');
   html = html.slice(0, start) + `<div class="fleet__cards">${cards}</div>` + html.slice(end);
   return applyMeta(html, {
-    route: '/', title: 'Трансфер по Хакасии и из Абакана — минивэны | Трансфер19',
+    route: '/', title: 'Трансфер по Хакасии и из Абакана — минивэны | Комфорт Сибири',
     description: 'Трансферы из Абакана, поездки по Хакасии и в Красноярск на минивэнах с водителем. Выберите маршрут и оставьте заявку — стоимость уточним индивидуально.',
     graph: []
   });
@@ -153,7 +153,7 @@ function fleetHtml(vehicles = []) {
       `<a class="vehicle-card__more" href="/autopark/${encodeURIComponent(v.slug)}">Подробнее <span class="vehicle-card__more-symbol circle-icon" aria-hidden="true"><span class="circle-icon__glyph">+</span></span></a></div></article>`;
   }).join('') || '<p class="autopark-fleet__note">Нет опубликованных автомобилей.</p>';
   const html = template.replace(/(<div\s+class="autopark-fleet__grid"\s+data-fleet-grid[^>]*>)[\s\S]*?(<\/div>)/, `$1${cards}$2`);
-  return applyMeta(html, { route: '/autopark.html', title: 'Автопарк минивэнов для трансфера в Хакасии | Трансфер19',
+  return applyMeta(html, { route: '/autopark.html', title: 'Автопарк минивэнов для трансфера в Хакасии | Комфорт Сибири',
     description: 'Минивэны Honda Stepwgn и Toyota Voxy для индивидуальных и междугородних поездок из Абакана. Фотографии, описание салона и заявка на трансфер.',
     graph: [breadcrumbGraph([{ name: 'Главная', path: '/' }, { name: 'Автопарк', path: '/autopark.html' }])] });
 }
@@ -161,10 +161,11 @@ function vehicleHtml(vehicle) {
   const name = String(vehicle.name || 'Автомобиль').slice(0, 160);
   const short = String(vehicle.shortDescription || vehicle.description || 'Пассажирский трансфер по Хакасии.').replace(/\s+/g, ' ').trim().slice(0, 245);
   const canonicalRoute = `/autopark/${encodeURIComponent(vehicle.slug)}`;
-  const title = `${name} — минивэн для трансферов | Трансфер19`;
+  const title = String(vehicle.seoTitle || '').trim() || `${name} — минивэн для трансферов | Комфорт Сибири`;
+  const seoDescription = String(vehicle.seoDescription || '').trim() || short;
   const photos = gallery(vehicle);
   const hero = photos[0];
-  const item = { '@type': 'Vehicle', '@id': `${origin()}${canonicalRoute}#vehicle`, name, description: short, ...(hero ? { image: photos.map(p => origin() + p.image) } : {}),
+  const item = { '@type': 'Vehicle', '@id': `${origin()}${canonicalRoute}#vehicle`, name, description: seoDescription, ...(hero ? { image: photos.map(p => origin() + p.image) } : {}),
     ...(Number.isInteger(vehicle.passengerSeats) && vehicle.passengerSeats > 0 ? { seatingCapacity: vehicle.passengerSeats } : {}) };
   let html = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
   html = html.replace(/(<h1 class="car-card__title" id="car-title">)[^<]*(<\/h1>)/, (_, a, b) => `${a}${escapeHtml(name)}${b}`);
@@ -181,7 +182,7 @@ function vehicleHtml(vehicle) {
     html = html.replace(/<div\s+class="car-gallery"[\s\S]*?<div\s+class="car-card__details"/, '<div class="car-card__details"');
   }
   return applyMeta(html, {
-    route: canonicalRoute, title, description: short, image: hero?.image,
+    route: canonicalRoute, title, description: seoDescription, image: hero?.image,
     graph: [breadcrumbGraph([{ name: 'Главная', path: '/' }, { name: 'Автопарк', path: '/autopark.html' }, { name, path: canonicalRoute }]), item]
   });
 }

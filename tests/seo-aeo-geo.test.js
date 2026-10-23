@@ -77,3 +77,34 @@ test('локальный robots, nginx и SSR согласованы с producti
     assert.ok(!s.includes('svoi-' + 'perevozki.ru'),f);
   }
 });
+
+test('CRM SEO title и description меняют серверные метатеги и разметку автомобиля', () => {
+  const html = vehicleHtml({
+    slug: 'stepwgn-white', name: 'Honda Stepwgn — белый', shortDescription: 'Краткое описание автомобиля',
+    seoTitle: 'Белый Honda Stepwgn — трансфер из Абакана | Комфорт Сибири',
+    seoDescription: 'Минивэн для поездок по Хакасии. Индивидуальный трансфер с водителем.',
+    images: [{ image: '/site/img/stepwgn.webp', alt: 'Белый Honda Stepwgn — вид спереди' }]
+  });
+  assert.ok(html.includes('<title>Белый Honda Stepwgn — трансфер из Абакана | Комфорт Сибири</title>'));
+  assert.match(html, /<meta\s+name="description"\s+content="Минивэн для поездок по Хакасии\. Индивидуальный трансфер с водителем\."/);
+  assert.ok(html.includes('property="og:description" content="Минивэн для поездок по Хакасии. Индивидуальный трансфер с водителем."'));
+  assert.ok(html.includes('content="Комфорт Сибири"'));
+  assert.ok(html.includes('alt="Белый Honda Stepwgn — вид спереди"'));
+  assert.ok(html.includes('href="https://transfer-comfort-sibiri.ru/autopark/stepwgn-white"'));
+  const graph=ld(html)['@graph'];
+  assert.ok(graph.find(x=>x['@type']==='Vehicle').description.includes('Индивидуальный трансфер'));
+});
+
+test('бренд обновлён, а CRM позволяет менять SEO и ALT', () => {
+  const editor=fs.readFileSync(path.join(root,'control/assets/control.js'),'utf8');
+  const api=fs.readFileSync(path.join(root,'src/routes/vehicles.control.routes.js'),'utf8');
+  const frontend=fs.readFileSync(path.join(root,'site/scripts/car.js'),'utf8');
+  assert.ok(editor.includes('name="seoTitle"'));
+  assert.ok(editor.includes('name="seoDescription"'));
+  assert.ok(editor.includes('data-gallery-alt'));
+  assert.ok(api.includes('seoTitle: body.seoTitle'));
+  assert.ok(api.includes('seoDescription: body.seoDescription'));
+  assert.ok(!frontend.includes('if (meta) meta.content ='));
+  assert.ok(fs.readFileSync(path.join(root,'components/header.html'),'utf8').includes('Комфорт Сибири'));
+  assert.ok(fs.readFileSync(path.join(root,'control/manifest.webmanifest'),'utf8').includes('Комфорт Сибири'));
+});

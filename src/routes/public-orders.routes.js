@@ -47,7 +47,7 @@ router.post("/", asyncRoute(async (req, res) => {
       include: { client: true, vehicleRecord: { include: { carrier: true } } }
     });
   });
-  sendNewOrderNotification(order).catch(error => console.error("Трансфер19 Web Push:", error.message));
+  sendNewOrderNotification(order).catch(error => console.error("Комфорт Сибири Web Push:", error.message));
   return res.status(201).json({ success: true, message: "Заявка принята. Мы свяжемся с вами для подтверждения поездки." });
 }));
 

@@ -239,7 +239,7 @@ app.use(errorHandler);
 
 if (require.main === module) {
   const server = app.listen(env.port, env.host, () => {
-    console.log(`Трансфер19: ${env.appOrigin || `http://localhost:${env.port}`}`);
+    console.log(`Комфорт Сибири: ${env.appOrigin || `http://localhost:${env.port}`}`);
 
 
   });

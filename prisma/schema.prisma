@@ -147,6 +147,8 @@ model Vehicle {
   name            String
   shortDescription String?
   description     String?
+  seoTitle        String?
+  seoDescription  String?
   specsDescription String?
   // Legacy-only cargo fields are retained for non-destructive migration.
   cargoDescription String?
@@ -202,7 +204,7 @@ model Order {
   clientId           Int
   pickupAddress      String?
   destinationAddress String?
-  // Legacy cargo fields retained during gradual migration; not exposed in Transfer19 UI.
+  // Legacy cargo fields retained during gradual migration; not exposed в публичном интерфейсе.
   cargoType          String?
   passengerCount     Int?
   luggageDetails     String?

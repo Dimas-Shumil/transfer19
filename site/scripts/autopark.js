@@ -99,7 +99,7 @@
       ));
     } catch (error) {
       grid.replaceChildren(node('p', 'autopark-fleet__note', 'Не удалось загрузить автопарк. Обновите страницу или свяжитесь с нами.'));
-      console.warn('Трансфер19 автопарк:', error.message);
+      console.warn('Комфорт Сибири автопарк:', error.message);
     }
   }
   renderFleet();

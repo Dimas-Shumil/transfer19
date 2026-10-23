@@ -14,7 +14,7 @@ test('sitemap exposes only public canonical pages and published vehicles', () =>
   assert.doesNotMatch(xml, /(?:\/index\.html|\/control\/)/);
 });
 
-test('vehicle SSR uses Transfer19 canonical and passenger characteristics with escaped HTML', () => {
+test('vehicle SSR uses canonical and passenger characteristics with escaped HTML', () => {
   const html = vehicleHtml({ slug: 'stepwgn-white', name: 'Honda <script>alert(1)</script>',
     shortDescription: 'Трансфер', passengerSeats: 6, luggageCapacity: 'Два чемодана',
     serviceArea: 'Абакан', images: [] });

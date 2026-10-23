@@ -454,6 +454,21 @@ h3 {
     flex-direction: column;
   }
 }
+@media (min-width: 1181px) and (max-width: 1439px) {
+  .site-header__inner {
+    gap: 22px;
+  }
+  .site-header__brand-text strong {
+    font-size: 18px;
+    letter-spacing: -0.045em;
+  }
+}
+@media (max-width: 1180px) {
+  .site-header__brand-text strong {
+    font-size: 18px;
+    letter-spacing: -0.045em;
+  }
+}
 .site-footer {
   background: #142332;
   color: #fff;
