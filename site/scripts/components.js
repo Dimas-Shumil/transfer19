@@ -219,7 +219,12 @@
     actions.inert = true;
     // Единственный источник номера — подтверждённый контакт компании.
     const phone = footer.dataset.phone || '';
-    const icon = (name) => `<svg aria-hidden="true" viewBox="0 0 24 24"><use href="/site/img/icons.svg#${name}"></use></svg>`;
+    // Inline SVG: не зависит от кеша внешнего спрайта и поддержки <use> в WebView.
+    const iconPaths = {
+      phone: '<path d="M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A18 18 0 0 1 3 5a2 2 0 0 1 2-2Z"/>',
+      message: '<path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z"/><path d="M7 9h10M7 13h6"/>'
+    };
+    const icon = (name) => `<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">${iconPaths[name]}</svg>`;
     actions.innerHTML = `<a class="mobile-contact__link mobile-contact__link--call" data-mobile-call ${phone ? `href="tel:${phone}"` : 'aria-disabled="true" tabindex="-1"'}>${icon('phone')}<span>Позвонить</span></a><a class="mobile-contact__link mobile-contact__link--message" href="/#booking">${icon('message')}<span>Написать</span></a>`;
     document.body.append(actions);
     const mobile = matchMedia('(max-width: 767px)');
